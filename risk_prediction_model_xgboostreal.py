@@ -7,7 +7,7 @@ from xgboost import XGBRegressor
 from sklearn.metrics import mean_absolute_error
 
 # Load cleaned dataset
-df = pd.read_csv("Cleaned_Real_Patient_Data_With_Predictions.csv")
+df = pd.read_csv("DrLim1000Synthetic.csv")
 
 # Separate input features and target
 X = df.drop(columns=["Target_HbA1C", "Predicted_HbA1C"])
