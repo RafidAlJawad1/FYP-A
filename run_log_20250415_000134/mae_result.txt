@@ -1,0 +1,2 @@
+Random State: 42
+MAE: 0.1116
