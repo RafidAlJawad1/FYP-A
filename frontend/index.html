@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Risk Prediction AI</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container mt-5">
+    <h1 class="text-center mb-4">Patient Risk Prediction</h1>
+    <form id="predictionForm" class="card p-4 shadow-sm">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Age</label>
+          <input type="number" class="form-control" id="AGE" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Gender (0 = Female, 1 = Male)</label>
+          <input type="number" class="form-control" id="GENDER" min="0" max="1" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Duration of DM (years)</label>
+          <input type="number" step="0.1" class="form-control" id="DURATION_DM" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Frequency of SMBG</label>
+          <input type="number" step="0.1" class="form-control" id="FREQ_SMBG" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Frequency of Hypo</label>
+          <input type="number" step="0.1" class="form-control" id="FREQ_HYPO" required>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Frequency of Visits</label>
+          <input type="number" step="0.1" class="form-control" id="FREQ_VISITS" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">eGFR</label>
+          <input type="number" step="0.1" class="form-control" id="EGFR" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">CKD Stage</label>
+          <input type="number" class="form-control" id="CKD_STAGE" min="1" max="5" required>
+        </div>
+      </div>
+      <div class="mt-4 text-center">
+        <button type="submit" class="btn btn-primary">Predict Risk</button>
+      </div>
+    </form>
+
+    <div id="result" class="mt-5 text-center"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const form = document.getElementById('predictionForm');
+    const resultDiv = document.getElementById('result');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const patientData = {
+        AGE: parseFloat(document.getElementById('AGE').value),
+        GENDER: parseInt(document.getElementById('GENDER').value),
+        "DURATION DM": parseFloat(document.getElementById('DURATION_DM').value),
+        "Freq SMBG": parseFloat(document.getElementById('FREQ_SMBG').value),
+        "Freq Hypo": parseFloat(document.getElementById('FREQ_HYPO').value),
+        "Freq of Visits": parseFloat(document.getElementById('FREQ_VISITS').value),
+        eGFR: parseFloat(document.getElementById('EGFR').value),
+        "CKD Stage": parseInt(document.getElementById('CKD_STAGE').value)
+      };
+
+      try {
+        const response = await fetch('http://127.0.0.1:8000/predict', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(patientData)
+        });
+
+        const data = await response.json();
+        resultDiv.innerHTML = `<h3>Predicted HbA1C Level: <span class="text-success">${data.predicted_hba1c.toFixed(2)}</span></h3>`;
+      } catch (error) {
+        console.error('Error:', error);
+        resultDiv.innerHTML = '<h3 class="text-danger">Prediction failed. Please check your input or server connection.</h3>';
+      }
+    });
+  </script>
+</body>
+</html>
