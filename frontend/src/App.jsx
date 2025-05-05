@@ -1,22 +1,19 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Layout from './Layout';
-import Dashboard from './pages/Dashboard';
-import Profile from './pages/Profile';
-import RiskPredictionForm from './RiskPredictionForm';
-import './App.css';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import PatientDashboard from './pages/PatientDashboard';
+import DoctorDashboard from './pages/DoctorDashboard';
 
 function App() {
   return (
     <Router>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/patients" element={<Profile />} />
-          <Route path="/patients/create" element={<Profile />} />
-          <Route path="/patients/add-from-app" element={<Profile />} />
-          <Route path="/predict" element={<RiskPredictionForm />} />
-        </Routes>
-      </Layout>
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/patient/dashboard" element={<PatientDashboard />} />
+        <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
+      </Routes>
     </Router>
   );
 }
