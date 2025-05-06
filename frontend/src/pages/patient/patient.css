@@ -1,0 +1,214 @@
+/* Base Layout */
+.dashboard-layout {
+    display: flex;
+    height: 100vh;
+    background-color: #fef8e7;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 220px;
+    background-color: #f3e5ab;
+    padding: 1.5rem;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    border-right: 1px solid #ddd;
+}
+
+.sidebar h2 {
+    font-size: 1.4rem;
+    color: #5c4426;
+    margin-bottom: 1.5rem;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar li {
+    margin-bottom: 1rem;
+}
+
+.sidebar a {
+    text-decoration: none;
+    color: #5c4426;
+    font-weight: 600;
+    padding: 0.5rem;
+    display: block;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+
+.sidebar a:hover {
+    background-color: #e6d8a8;
+}
+
+/* Main Content */
+.content {
+    flex-grow: 1;
+    padding: 2.5rem;
+    background-color: #fffdf5;
+    overflow-y: auto;
+}
+
+/* Dashboard Buttons */
+.patient-dashboard {
+    padding: 2.5rem;
+    background-color: #fffdf5;
+    text-align: center;
+}
+
+.patient-dashboard h1 {
+    font-size: 2rem;
+    color: #4b3621;
+}
+
+.patient-dashboard p {
+    margin-bottom: 2rem;
+    color: #5c4426;
+}
+
+.dashboard-buttons .btn {
+    margin: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #f0d9a0;
+    border: none;
+    border-radius: 8px;
+    color: #333;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s;
+}
+
+.dashboard-buttons .btn:hover {
+    background-color: #e2c78c;
+    transform: scale(1.03);
+}
+
+.dashboard-buttons .logout {
+    background-color: #e6ac00;
+    color: white;
+}
+
+/* Chatbot Placeholder */
+.chatbot-placeholder {
+    border: 2px dashed #aaa;
+    background-color: #fffbe6;
+    border-radius: 8px;
+    padding: 2rem;
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #666;
+    text-align: center;
+}
+
+/* Form Styles */
+input,
+select {
+    padding: 0.6rem;
+    margin-bottom: 1rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    width: 100%;
+    max-width: 400px;
+    display: block;
+}
+
+button {
+    padding: 0.6rem 1.2rem;
+    background-color: #f0c75e;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #333;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #e6b84d;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #fdfaf4;
+}
+
+.patient-dashboard.centered {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(to right, #fdfcf7, #f2f6f6);
+    color: #3e2e1f;
+    text-align: center;
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+.patient-dashboard h1 {
+    font-size: 4rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.patient-dashboard p {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.dashboard-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.dashboard-buttons button {
+    padding: 0.75rem 1.25rem;
+    font-size: 1.2rem;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background-color: #f3e5ab;
+    color: #3e2e1f;
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.dashboard-buttons button:hover {
+    background-color: #ffe7a1;
+    transform: translateY(-2px);
+}
+
+.dashboard-buttons .logout-btn {
+    background-color: #f4c430;
+    color: white;
+}
+
+.dashboard-buttons .logout-btn:hover {
+    background-color: #e5b200;
+}

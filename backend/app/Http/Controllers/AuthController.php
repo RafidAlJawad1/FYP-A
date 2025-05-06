@@ -24,7 +24,10 @@ class AuthController extends Controller
             'role' => $request->role,
         ]);
 
-        return response()->json(['message' => 'Registered successfully']);
+        return response()->json([
+            "message" => "User registered successfully",
+            "user" => $user
+        ]);
     }
 
     public function login(Request $request)

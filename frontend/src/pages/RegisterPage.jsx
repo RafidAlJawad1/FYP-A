@@ -11,12 +11,15 @@ function RegisterPage() {
 
     const handleRegister = async () => {
         try {
-            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/register`, {
+            const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/register`, {
                 name,
                 email,
                 password,
                 role
             });
+
+            const { user } = response.data;
+            localStorage.setItem('user', JSON.stringify(user)); // 👈 save user for dashboard use
             alert('Registration success.');
             navigate('/login');
         } catch (err) {
