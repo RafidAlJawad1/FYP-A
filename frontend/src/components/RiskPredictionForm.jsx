@@ -38,7 +38,7 @@ function RiskPredictionForm() {
 
   return (
     <div className="risk-page">
-      <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}>Risk Prediction Form</h2>
+      <h2 style={{ marginBottom: '1.5rem', textAlign: 'center' }}></h2>
       <div style={{ width: '100%' }}>
       <form className="risk-form" onSubmit={handleSubmit}>
         <InputField label="AGE" name="AGE" value={formData.AGE} handleChange={handleChange} />
@@ -57,13 +57,13 @@ function RiskPredictionForm() {
       </div>
       
       {result && (
-        <div style={{ marginTop: '2rem', color: 'green', fontWeight: 'bold', textAlign: 'center' }}>
+        <div className="prediction-result" style={{ marginTop: '2rem', color: 'green', fontWeight: 'bold', textAlign: 'center' }}>
           Predicted HbA1C: {result}
         </div>
       )}
 
       {error && (
-        <div style={{ marginTop: '2rem', color: 'red', textAlign: 'center' }}>
+        <div className="prediction-error" style={{ marginTop: '2rem', color: 'red', textAlign: 'center' }}>
           {error}
         </div>
       )}

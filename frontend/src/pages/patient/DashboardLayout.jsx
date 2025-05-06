@@ -5,7 +5,7 @@ function DashboardLayout() {
     return (
         <div className="dashboard-layout">
             <aside className="sidebar">
-                <h2><Link to="/patient/dashboard">Menu</Link></h2>
+                <h2><Link to="/patient/dashboard">Dashboard</Link></h2>
                 <ul>
                     <li><Link to="/patient/profile">Profile</Link></li>
                     <li><Link to="/patient/predict">Predict HbA1c</Link></li>

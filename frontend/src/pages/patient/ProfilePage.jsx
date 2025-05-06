@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import './patient.css';
 
 function ProfilePage() {
     const [profile, setProfile] = useState({ name: '', email: '', age: '', gender: '' });

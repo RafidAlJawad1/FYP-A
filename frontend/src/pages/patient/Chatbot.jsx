@@ -1,9 +1,13 @@
+import './patient.css';
+
+
 function Chatbot() {
     return (
         <div style={{
             border: '2px dashed gray',
-            height: '300px',
-            padding: '1rem',
+            height: '29%',
+            width: '30%',
+            padding: '20rem',
             backgroundColor: '#fffaf0'
         }}>
             <h3>Chatbot (Coming Soon)</h3>

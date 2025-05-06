@@ -15,11 +15,10 @@ function RegisterPage() {
                 name,
                 email,
                 password,
-                role
+                role,
             });
-
             const { user } = response.data;
-            localStorage.setItem('user', JSON.stringify(user)); // 👈 save user for dashboard use
+            localStorage.setItem('user', JSON.stringify(user));
             alert('Registration success.');
             navigate('/login');
         } catch (err) {
@@ -28,31 +27,34 @@ function RegisterPage() {
     };
 
     return (
-        <div>
-            <h2>Register</h2>
-            <input
-                type="text"
-                placeholder="Name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-            /><br />
-            <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-            /><br />
-            <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            /><br />
-            <select value={role} onChange={(e) => setRole(e.target.value)}>
-                <option value="patient">Patient</option>
-                <option value="doctor">Doctor</option>
-            </select><br />
-            <button onClick={handleRegister}>Register</button>
+        <div className="auth-page">
+            <div className="auth-card">
+                <h2>Register</h2>
+                <input
+                    type="text"
+                    placeholder="Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                />
+                <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                />
+                <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+                <select value={role} onChange={(e) => setRole(e.target.value)}>
+                    <option value="patient">Patient</option>
+                    <option value="doctor">Doctor</option>
+                </select>
+                <button onClick={handleRegister}>Register</button>
+                <p>Already have an account? <a href="/login">Login here</a></p>
+            </div>
         </div>
     );
 }

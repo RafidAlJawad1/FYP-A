@@ -48,51 +48,11 @@
 /* Main Content */
 .content {
     flex-grow: 1;
-    padding: 2.5rem;
+    padding: 0rem 10rem 0rem 10rem;
     background-color: #fffdf5;
     overflow-y: auto;
 }
 
-/* Dashboard Buttons */
-.patient-dashboard {
-    padding: 2.5rem;
-    background-color: #fffdf5;
-    text-align: center;
-}
-
-.patient-dashboard h1 {
-    font-size: 2rem;
-    color: #4b3621;
-}
-
-.patient-dashboard p {
-    margin-bottom: 2rem;
-    color: #5c4426;
-}
-
-.dashboard-buttons .btn {
-    margin: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    background-color: #f0d9a0;
-    border: none;
-    border-radius: 8px;
-    color: #333;
-    font-weight: bold;
-    text-decoration: none;
-    display: inline-block;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: all 0.2s;
-}
-
-.dashboard-buttons .btn:hover {
-    background-color: #e2c78c;
-    transform: scale(1.03);
-}
-
-.dashboard-buttons .logout {
-    background-color: #e6ac00;
-    color: white;
-}
 
 /* Chatbot Placeholder */
 .chatbot-placeholder {
@@ -134,6 +94,10 @@ button {
 button:hover {
     background-color: #e6b84d;
 }
+
+
+
+
 
 
 
@@ -211,4 +175,156 @@ body {
 
 .dashboard-buttons .logout-btn:hover {
     background-color: #e5b200;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.risk-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(to bottom right, #fffdf7, #eafaf9);
+    padding: 2rem;
+    box-sizing: border-box;
+}
+
+.risk-card {
+    background-color: #fffef9;
+    padding: 2rem 3rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+}
+
+.risk-card h2 {
+    text-align: center;
+    color: #3e2e1f;
+    margin-bottom: 2rem;
+}
+
+.risk-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+.form-group label {
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    display: block;
+    color: #5c4426;
+}
+
+input[type="number"] {
+    padding: 0.6rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    width: 100%;
+    background-color: #fff;
+}
+
+.predict-button {
+    background-color: #f3e5ab;
+    color: #3e2e1f;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.predict-button:hover {
+    background-color: #ffe7a1;
+}
+
+.prediction-result {
+    margin-top: 2rem;
+    color: green;
+    font-weight: bold;
+    text-align: center;
+    font-size: 1.25rem;
+}
+
+.prediction-error {
+    margin-top: 2rem;
+    color: red;
+    text-align: center;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.auth-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #fdf8ec;
+}
+
+.auth-card {
+    background-color: #fffef7;
+    padding: 2.5rem 3rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+.auth-card h2 {
+    margin-bottom: 1.5rem;
+    color: #3e2e1f;
+    text-align: center;
+}
+
+.auth-card input,
+.auth-card select {
+    margin-bottom: 1rem;
+}
+
+.auth-card button {
+    width: 100%;
+}
+
+.auth-card p {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+.auth-card a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.auth-card a:hover {
+    text-decoration: underline;
 }
