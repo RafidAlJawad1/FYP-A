@@ -11,12 +11,13 @@ function RegisterPage() {
 
     const handleRegister = async () => {
         try {
-            await axios.post('http://127.0.0.1:8000/api/register', {
+            await axios.post(`${import.meta.env.VITE_API_BASE_URL}/register`, {
                 name,
                 email,
                 password,
                 role
             });
+            alert('Registration success.');
             navigate('/login');
         } catch (err) {
             alert('Registration failed.');
