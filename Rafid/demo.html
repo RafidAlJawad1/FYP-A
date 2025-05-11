@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #6B73FF 0%, #000DFF 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .sidebar-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateX(5px);
+        }
+        .sidebar-item.active {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-left: 4px solid white;
+        }
+        .chat-bubble {
+            border-radius: 20px 20px 20px 0;
+        }
+        .user-bubble {
+            border-radius: 20px 20px 0 20px;
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <!-- Auth Container (shown by default) -->
+    <div id="auth-container" class="min-h-screen flex items-center justify-center p-4">
+        <div class="w-full max-w-md">
+            <!-- Tabs -->
+            <div class="flex mb-8">
+                <button id="login-tab" class="flex-1 py-3 px-4 text-center font-medium text-white bg-blue-600 rounded-l-lg">Login</button>
+                <button id="register-tab" class="flex-1 py-3 px-4 text-center font-medium text-blue-600 bg-white rounded-r-lg">Register</button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="login-form" class="bg-white rounded-lg p-8 card-shadow">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Welcome Back</h2>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2" for="login-email">Email</label>
+                    <input type="email" id="login-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-700 mb-2" for="login-password">Password</label>
+                    <input type="password" id="login-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="inline-flex items-center">
+                        <input type="checkbox" id="user-type" class="form-checkbox h-5 w-5 text-blue-600">
+                        <span class="ml-2 text-gray-700">I'm a doctor</span>
+                    </label>
+                </div>
+                
+                <button id="login-btn" class="w-full gradient-bg text-white py-3 rounded-lg font-medium hover:opacity-90 transition duration-300 mb-4">
+                    Sign In
+                </button>
+                
+                <div class="text-center">
+                    <a href="#" class="text-blue-600 hover:underline">Forgot password?</a>
+                </div>
+            </div>
+
+            <!-- Register Form (hidden by default) -->
+            <div id="register-form" class="bg-white rounded-lg p-8 card-shadow hidden">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Create Account</h2>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2" for="register-name">Full Name</label>
+                    <input type="text" id="register-name" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2" for="register-email">Email</label>
+                    <input type="email" id="register-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div class="mb-4">
+                    <label class="block text-gray-700 mb-2" for="register-password">Password</label>
+                    <input type="password" id="register-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-700 mb-2">Account Type</label>
+                    <div class="flex">
+                        <label class="inline-flex items-center mr-6">
+                            <input type="radio" name="register-type" value="patient" checked class="form-radio h-5 w-5 text-blue-600">
+                            <span class="ml-2 text-gray-700">Patient</span>
+                        </label>
+                        <label class="inline-flex items-center">
+                            <input type="radio" name="register-type" value="doctor" class="form-radio h-5 w-5 text-blue-600">
+                            <span class="ml-2 text-gray-700">Doctor</span>
+                        </label>
+                    </div>
+                </div>
+                
+                <button id="register-btn" class="w-full gradient-bg text-white py-3 rounded-lg font-medium hover:opacity-90 transition duration-300">
+                    Sign Up
+                </button>
+                
+                <div class="text-center mt-4 text-sm text-gray-600">
+                    By signing up, you agree to our <a href="#" class="text-blue-600 hover:underline">Terms</a> and <a href="#" class="text-blue-600 hover:underline">Privacy Policy</a>.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Container (hidden by default) -->
+    <div id="dashboard-container" class="hidden min-h-screen">
+        <!-- Sidebar -->
+        <div class="fixed inset-y-0 left-0 w-64 gradient-bg text-white flex flex-col">
+            <div class="p-4 flex items-center border-b border-blue-400">
+                <i class="fas fa-heartbeat text-2xl mr-3"></i>
+                <h1 class="text-xl font-bold">HealthCare AI</h1>
+            </div>
+            
+            <div class="p-4 flex items-center border-b border-blue-400">
+                <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-blue-600 font-bold mr-3" id="user-avatar">U</div>
+                <div>
+                    <div class="font-medium" id="user-name">User Name</div>
+                    <div class="text-xs opacity-75" id="user-type-display">Patient</div>
+                </div>
+            </div>
+            
+            <nav class="flex-1 overflow-y-auto py-4">
+                <ul id="patient-menu">
+                    <li class="px-6 py-3 sidebar-item cursor-pointer transition duration-200 flex items-center">
+                        <i class="fas fa-comment-medical mr-3"></i>
+                        <span>AI Chatbot</span>
+                    </li>
+                    <li class="px-6 py-3 sidebar-item cursor-pointer transition duration-200 flex items-center">
+                        <i class="fas fa-user mr-3"></i>
+                        <span>My Profile</span>
+                    </li>
+                </ul>
+                
+                <ul id="doctor-menu" class="hidden">
+                    <li class="px-6 py-3 sidebar-item cursor-pointer transition duration-200 flex items-center">
+                        <i class="fas fa-chart-line mr-3"></i>
+                        <span>Risk Prediction</span>
+                    </li>
+                    <li class="px-6 py-3 sidebar-item cursor-pointer transition duration-200 flex items-center">
+                        <i class="fas fa-pills mr-3"></i>
+                        <span>Therapy Effectiveness</span>
+                    </li>
+                    <li class="px-6 py-3 sidebar-item cursor-pointer transition duration-200 flex items-center">
+                        <i class="fas fa-procedures mr-3"></i>
+                        <span>Treatment Plans</span>
+                    </li>
+                    <li class="px-6 py-3 sidebar-item cursor-pointer transition duration-200 flex items-center">
+                        <i class="fas fa-comment-medical mr-3"></i>
+                        <span>AI Chatbot</span>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="p-4 border-t border-blue-400">
+                <button id="logout-btn" class="w-full py-2 px-4 bg-white text-blue-600 rounded-lg font-medium hover:bg-gray-100 transition duration-200 flex items-center justify-center">
+                    <i class="fas fa-sign-out-alt mr-2"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="ml-64 p-8">
+            <!-- Header -->
+            <header class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-gray-800" id="page-title">Dashboard</h2>
+                <div class="flex items-center">
+                    <div class="relative">
+                        <i class="fas fa-bell text-gray-500 text-xl mr-6 cursor-pointer hover:text-blue-600"></i>
+                        <span class="absolute top-0 right-5 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </div>
+                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold cursor-pointer" id="header-avatar">U</div>
+                </div>
+            </header>
+            
+            <!-- Content Pages -->
+            <div id="pages-container">
+                <!-- Patient Profile Page -->
+                <div id="patient-profile-page" class="hidden fade-in">
+                    <div class="bg-white rounded-lg p-6 card-shadow">
+                        <h3 class="text-xl font-semibold mb-6 text-gray-800">My Profile</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <div>
+                                <h4 class="text-lg font-medium text-gray-700 mb-4">Personal Information</h4>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm text-gray-500">Full Name</label>
+                                        <p class="font-medium">John Doe</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-500">Date of Birth</label>
+                                        <p class="font-medium">January 15, 1985</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-500">Gender</label>
+                                        <p class="font-medium">Male</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-500">Blood Type</label>
+                                        <p class="font-medium">O+</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-lg font-medium text-gray-700 mb-4">Contact Information</h4>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm text-gray-500">Email</label>
+                                        <p class="font-medium">john.doe@example.com</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-500">Phone</label>
+                                        <p class="font-medium">(555) 123-4567</p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-500">Address</label>
+                                        <p class="font-medium">123 Main St, Apt 4B<br>New York, NY 10001</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h4 class="text-lg font-medium text-gray-700 mb-4">Medical History</h4>
+                        <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                            <p class="text-gray-700">Allergies: Penicillin, Shellfish</p>
+                            <p class="text-gray-700 mt-2">Chronic Conditions: Asthma (mild), Hypertension</p>
+                            <p class="text-gray-700 mt-2">Previous Surgeries: Appendectomy (2010)</p>
+                        </div>
+                        
+                        <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200">
+                            Edit Profile
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- AI Chatbot Page (for both patient and doctor) -->
+                <div id="chatbot-page" class="hidden fade-in">
+                    <div class="bg-white rounded-lg overflow-hidden card-shadow">
+                        <div class="p-4 border-b border-gray-200">
+                            <h3 class="text-xl font-semibold text-gray-800">AI Health Assistant</h3>
+                            <p class="text-sm text-gray-500">Ask me anything about your health concerns</p>
+                        </div>
+                        
+                        <div id="chat-container" class="h-96 p-4 overflow-y-auto bg-gray-50">
+                            <div class="flex mb-4">
+                                <div class="max-w-xs md:max-w-md bg-blue-100 p-3 chat-bubble">
+                                    <p class="text-gray-800">Hello! I'm your AI health assistant. How can I help you today?</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 border-t border-gray-200">
+                            <div class="flex">
+                                <input type="text" id="chat-input" placeholder="Type your message here..." class="flex-1 px-4 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <button id="send-btn" class="px-4 py-2 gradient-bg text-white rounded-r-lg hover:opacity-90 transition duration-300">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Doctor Risk Prediction Page -->
+                <div id="risk-prediction-page" class="hidden fade-in">
+                    <div class="bg-white rounded-lg p-6 card-shadow">
+                        <h3 class="text-xl font-semibold mb-6 text-gray-800">Patient Risk Prediction</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-3">
+                                        <i class="fas fa-heartbeat"></i>
+                                    </div>
+                                    <h4 class="font-medium">Cardiovascular Risk</h4>
+                                </div>
+                                <div class="flex items-end">
+                                    <span class="text-3xl font-bold text-blue-600 mr-2">18%</span>
+                                    <span class="text-sm text-blue-500 mb-1">Low Risk</span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-yellow-50 p-4 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 mr-3">
+                                        <i class="fas fa-lungs"></i>
+                                    </div>
+                                    <h4 class="font-medium">Respiratory Risk</h4>
+                                </div>
+                                <div class="flex items-end">
+                                    <span class="text-3xl font-bold text-yellow-600 mr-2">42%</span>
+                                    <span class="text-sm text-yellow-500 mb-1">Moderate Risk</span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-red-50 p-4 rounded-lg">
+                                <div class="flex items-center mb-2">
+                                    <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 mr-3">
+                                        <i class="fas fa-brain"></i>
+                                    </div>
+                                    <h4 class="font-medium">Neurological Risk</h4>
+                                </div>
+                                <div class="flex items-end">
+                                    <span class="text-3xl font-bold text-red-600 mr-2">7%</span>
+                                    <span class="text-sm text-red-500 mb-1">Very Low Risk</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-8">
+                            <h4 class="text-lg font-medium text-gray-700 mb-4">Select Patient</h4>
+                            <select class="w-full md:w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option>John Doe (ID: 12345)</option>
+                                <option>Jane Smith (ID: 12346)</option>
+                                <option>Robert Johnson (ID: 12347)</option>
+                                <option>Emily Davis (ID: 12348)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-8">
+                            <h4 class="text-lg font-medium text-gray-700 mb-4">Risk Factors</h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h5 class="font-medium mb-2">Lifestyle Factors</h5>
+                                    <ul class="list-disc pl-5 text-sm text-gray-700">
+                                        <li class="mb-1">Smoking: 10 cigarettes/day</li>
+                                        <li class="mb-1">Alcohol: Moderate consumption</li>
+                                        <li class="mb-1">Exercise: Sedentary lifestyle</li>
+                                        <li>BMI: 28.4 (Overweight)</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <h5 class="font-medium mb-2">Medical Factors</h5>
+                                    <ul class="list-disc pl-5 text-sm text-gray-700">
+                                        <li class="mb-1">Family history of heart disease</li>
+                                        <li class="mb-1">Blood pressure: 138/86 mmHg</li>
+                                        <li class="mb-1">Cholesterol: LDL 140 mg/dL</li>
+                                        <li>Diabetes: Prediabetic</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-700 mb-4">Recommendations</h4>
+                            <div class="bg-blue-50 p-4 rounded-lg">
+                                <ul class="list-disc pl-5 text-gray-700">
+                                    <li class="mb-2">Implement lifestyle modifications including diet and exercise</li>
+                                    <li class="mb-2">Consider statin therapy for cholesterol management</li>
+                                    <li class="mb-2">Monitor blood pressure regularly</li>
+                                    <li>Schedule follow-up in 3 months</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Doctor Therapy Effectiveness Page -->
+                <div id="therapy-page" class="hidden fade-in">
+                    <div class="bg-white rounded-lg p-6 card-shadow">
+                        <h3 class="text-xl font-semibold mb-6 text-gray-800">Therapy Effectiveness</h3>
+                        
+                        <div class="mb-8">
+                            <h4 class="text-lg font-medium text-gray-700 mb-4">Select Patient</h4>
+                            <select class="w-full md:w-1/2 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option>John Doe (ID: 12345)</option>
+                                <option>Jane Smith (ID: 12346)</option>
+                                <option>Robert Johnson (ID: 12347)</option>
+                                <option>Emily Davis (ID: 12348)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-8">
+                            <h4 class="text-lg font-medium text-gray-700 mb-4">Current Treatment Plan</h4>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full bg-white border border-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Medication</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Dosage</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Frequency</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Start Date</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Effectiveness</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-4 py-2">Atorvastatin</td>
+                                            <td class="px-4 py-2">20 mg</td>
+                                            <td class="px-4 py-2">Once daily</td>
+                                            <td class="px-4 py-2">03/15/2023</td>
+                                            <td class="px-4 py-2">
+                                                <div class="flex items-center">
+                                                    <div class="w-24 bg-gray-200 rounded-full h-2.5 mr-2">
+                                                        <div class="bg-green-500 h-2.5 rounded-full" style="width: 75%"></div>
+                                                    </div>
+                                                    <span class="text-sm text-gray-600">75%</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-2">Lisinopril</td>
+                                            <td class="px-4 py-2">10 mg</td>
+                                            <td class="px-4 py-2">Once daily</td>
+                                            <td class="px-4 py-2">02/01/2023</td>
+                                            <td class="px-4 py-2">
+                                                <div class="flex items-center">
+                                                    <div class="w-24 bg-gray-200 rounded-full h-2.5 mr-2">
+                                                        <div class="bg-yellow-500 h-2.5 rounded-full" style="width: 45%"></div>
+                                                    </div>
+                                                    <span class="text-sm text-gray-600">45%</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-2">Metformin</td>
+                                            <td class="px-4 py-2">500 mg</td>
+                                            <td class="px-4 py-2">Twice daily</td>
+                                            <td class="px-4 py-2">01/10/2023</td>
+                                            <td class="px-4 py-2">
+                                                <div class="flex items-center">
+                                                    <div class="w-24 bg-gray-200 rounded-full h-2.5 mr-2">
+                                                        <div class="bg-green-500 h-2.5 rounded-full" style="width: 82%"></div>
+                                                    </div>
+                                                    <span class="text-sm text-gray-600">82%</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <div>
+                                <h4 class="text-lg font-medium text-gray-700 mb-4">Key Metrics</h4>
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm text-gray-500">Blood Pressure</label>
+                                        <p class="font-medium">138/86 mmHg <span class="text-sm text-yellow-600 ml-2">(Improved from 145/92)</span></p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-500">LDL Cholesterol</label>
+                                        <p class="font-medium">140 mg/dL <span class="text-sm text-green-600 ml-2">(Improved from 165)</span></p>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-500">HbA1c</label>
+                                        <p class="font-medium">6.2% <span class="text-sm text-green-600 ml-2">(Improved from 6.5)</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h4 class="text-lg font-medium text-gray-700 mb-4">Side Effects</h4>
+                                <div class="bg-red-50 p-4 rounded-lg">
+                                    <ul class="list-disc pl-5 text-sm text-gray-700">
+                                        <li class="mb-1">Mild muscle pain reported with Atorvastatin</li>
+                                        <li class="mb-1">Occasional dry cough with Lisinopril</li>
+                                        <li>Mild gastrointestinal discomfort with Metformin</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-700 mb-4">Adjust Treatment Plan</h4>
+                            <div class="bg-white border border-gray-200 rounded-lg p-4">
+                                <div class="mb-4">
+                                    <label class="block text-gray-700 mb-2">Adjustment Type</label>
+                                    <select class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option>Dosage Change</option>
+                                        <option>Frequency Change</option>
+                                        <option>Medication Switch</option>
+                                        <option>Add New Medication</option>
+                                        <option>Discontinue Medication</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="block text-gray-700 mb-2">Details</label>
+                                    <textarea class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3" placeholder="Enter adjustment details..."></textarea>
+                                </div>
+                                
+                                <button class="px-4 py-2 gradient-bg text-white rounded-lg hover:opacity-90 transition duration-300">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Doctor Treatment Page -->
+                <div id="treatment-page" class="hidden fade-in">
+                    <div class="bg-white rounded-lg p-6 card-shadow">
+                        <h3 class="text-xl font-semibold mb-6 text-gray-800">Treatment Plans</h3>
+                        
+                        <div class="mb-8">
+                            <h4 class="text-lg font-medium text-gray-700 mb-4">Create New Treatment Plan</h4>
+                            <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                    <div>
+                                        <label class="block text-sm text-gray-700 mb-1">Select Patient</label>
+                                        <select class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option>John Doe (ID: 12345)</option>
+                                            <option>Jane Smith (ID: 12346)</option>
+                                            <option>Robert Johnson (ID: 12347)</option>
+                                            <option>Emily Davis (ID: 12348)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-700 mb-1">Condition</label>
+                                        <input type="text" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g. Hypertension">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-700 mb-1">Severity</label>
+                                        <select class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option>Mild</option>
+                                            <option>Moderate</option>
+                                            <option>Severe</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="block text-sm text-gray-700 mb-1">Medications</label>
+                                    <div class="space-y-2" id="medication-list">
+                                        <div class="flex items-center">
+                                            <input type="text" class="flex-1 px-3 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Medication name">
+                                            <input type="text" class="w-20 px-3 py-2 border-t border-b border-r focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Dose">
+                                            <select class="w-24 px-3 py-2 border-t border-b border-r focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                                <option>Daily</option>
+                                                <option>BID</option>
+                                                <option>TID</option>
+                                                <option>QID</option>
+                                                <option>Weekly</option>
+                                            </select>
+                                            <button class="px-3 py-2 bg-red-100 text-red-600 rounded-r-lg hover:bg-red-200">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <button id="add-medication" class="mt-2 px-3 py-1 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
+                                        <i class="fas fa-plus mr-1"></i> Add Medication
+                                    </button>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="block text-sm text-gray-700 mb-1">Lifestyle Recommendations</label>
+                                    <textarea class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" rows="2" placeholder="Diet, exercise, etc."></textarea>
+                                </div>
+                                
+                                <div class="mb-4">
+                                    <label class="block text-sm text-gray-700 mb-1">Follow-up Schedule</label>
+                                    <div class="flex items-center">
+                                        <select class="w-32 px-3 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option>1 week</option>
+                                            <option>2 weeks</option>
+                                            <option>1 month</option>
+                                            <option>3 months</option>
+                                            <option>6 months</option>
+                                        </select>
+                                        <input type="text" class="flex-1 px-3 py-2 border-t border-b border-r rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Follow-up notes">
+                                    </div>
+                                </div>
+                                
+                                <button class="px-4 py-2 gradient-bg text-white rounded-lg hover:opacity-90 transition duration-300">
+                                    Save Treatment Plan
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="text-lg font-medium text-gray-700 mb-4">Existing Treatment Plans</h4>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full bg-white border border-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Patient</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Condition</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Medications</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Start Date</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-gray-200">
+                                        <tr>
+                                            <td class="px-4 py-2">John Doe</td>
+                                            <td class="px-4 py-2">Hypertension</td>
+                                            <td class="px-4 py-2">Lisinopril 10mg, Amlodipine 5mg</td>
+                                            <td class="px-4 py-2">02/15/2023</td>
+                                            <td class="px-4 py-2">
+                                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Active</span>
+                                            </td>
+                                            <td class="px-4 py-2">
+                                                <button class="px-2 py-1 bg-blue-100 text-blue-600 rounded-lg mr-1">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="px-2 py-1 bg-red-100 text-red-600 rounded-lg">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-2">Jane Smith</td>
+                                            <td class="px-4 py-2">Type 2 Diabetes</td>
+                                            <td class="px-4 py-2">Metformin 500mg, Glipizide 5mg</td>
+                                            <td class="px-4 py-2">01/10/2023</td>
+                                            <td class="px-4 py-2">
+                                                <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Active</span>
+                                            </td>
+                                            <td class="px-4 py-2">
+                                                <button class="px-2 py-1 bg-blue-100 text-blue-600 rounded-lg mr-1">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="px-2 py-1 bg-red-100 text-red-600 rounded-lg">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-4 py-2">Robert Johnson</td>
+                                            <td class="px-4 py-2">Hyperlipidemia</td>
+                                            <td class="px-4 py-2">Atorvastatin 20mg</td>
+                                            <td class="px-4 py-2">03/01/2023</td>
+                                            <td class="px-4 py-2">
+                                                <span class="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">Pending Review</span>
+                                            </td>
+                                            <td class="px-4 py-2">
+                                                <button class="px-2 py-1 bg-blue-100 text-blue-600 rounded-lg mr-1">
+                                                    <i class="fas fa-edit"></i>
+                                                </button>
+                                                <button class="px-2 py-1 bg-red-100 text-red-600 rounded-lg">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Default Dashboard Page -->
+                <div id="default-page" class="fade-in">
+                    <div class="bg-white rounded-lg p-6 card-shadow">
+                        <h3 class="text-xl font-semibold mb-6 text-gray-800">Welcome to HealthCare AI Portal</h3>
+                        <p class="text-gray-700 mb-6">Please select an option from the sidebar to get started.</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="quick-access">
+                            <!-- Quick access buttons will be populated by JavaScript based on user type -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const authContainer = document.getElementById('auth-container');
+        const dashboardContainer = document.getElementById('dashboard-container');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const loginTab = document.getElementById('login-tab');
+        const registerTab = document.getElementById('register-tab');
+        const loginBtn = document.getElementById('login-btn');
+        const registerBtn = document.getElementById('register-btn');
+        const userTypeCheckbox = document.getElementById('user-type');
+        const logoutBtn = document.getElementById('logout-btn');
+        const patientMenu = document.getElementById('patient-menu');
+        const doctorMenu = document.getElementById('doctor-menu');
+        const userTypeDisplay = document.getElementById('user-type-display');
+        const userAvatar = document.getElementById('user-avatar');
+        const headerAvatar = document.getElementById('header-avatar');
+        const userName = document.getElementById('user-name');
+        const pagesContainer = document.getElementById('pages-container');
+        const quickAccess = document.getElementById('quick-access');
+        
+        // Pages
+        const pages = {
+            'patient-profile': document.getElementById('patient-profile-page'),
+            'chatbot': document.getElementById('chatbot-page'),
+            'risk-prediction': document.getElementById('risk-prediction-page'),
+            'therapy': document.getElementById('therapy-page'),
+            'treatment': document.getElementById('treatment-page'),
+            'default': document.getElementById('default-page')
+        };
+        
+        // Current user state
+        let currentUser = null;
+        
+        // Tab switching
+        loginTab.addEventListener('click', () => {
+            loginTab.classList.add('text-white', 'bg-blue-600');
+            loginTab.classList.remove('text-blue-600', 'bg-white');
+            registerTab.classList.add('text-blue-600', 'bg-white');
+            registerTab.classList.remove('text-white', 'bg-blue-600');
+            loginForm.classList.remove('hidden');
+            registerForm.classList.add('hidden');
+        });
+        
+        registerTab.addEventListener('click', () => {
+            registerTab.classList.add('text-white', 'bg-blue-600');
+            registerTab.classList.remove('text-blue-600', 'bg-white');
+            loginTab.classList.add('text-blue-600', 'bg-white');
+            loginTab.classList.remove('text-white', 'bg-blue-600');
+            registerForm.classList.remove('hidden');
+            loginForm.classList.add('hidden');
+        });
+        
+        // Login function
+        loginBtn.addEventListener('click', () => {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const isDoctor = document.getElementById('user-type').checked;
+            
+            if (!email || !password) {
+                alert('Please enter both email and password');
+                return;
+            }
+            
+            // Simulate login - in a real app, this would be an API call
+            currentUser = {
+                name: email.split('@')[0],
+                email: email,
+                isDoctor: isDoctor
+            };
+            
+            // Update UI
+            authContainer.classList.add('hidden');
+            dashboardContainer.classList.remove('hidden');
+            updateDashboardUI();
+            showPage('default');
+        });
+        
+        // Register function
+        registerBtn.addEventListener('click', () => {
+            const name = document.getElementById('register-name').value;
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const userType = document.querySelector('input[name="register-type"]:checked').value;
+            
+            if (!name || !email || !password) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            // Simulate registration - in a real app, this would be an API call
+            currentUser = {
+                name: name,
+                email: email,
+                isDoctor: userType === 'doctor'
+            };
+            
+            // Update UI
+            authContainer.classList.add('hidden');
+            dashboardContainer.classList.remove('hidden');
+            updateDashboardUI();
+            showPage('default');
+        });
+        
+        // Logout function
+        logoutBtn.addEventListener('click', () => {
+            currentUser = null;
+            dashboardContainer.classList.add('hidden');
+            authContainer.classList.remove('hidden');
+            
+            // Reset forms
+            document.getElementById('login-email').value = '';
+            document.getElementById('login-password').value = '';
+            document.getElementById('user-type').checked = false;
+        });
+        
+        // Update dashboard UI based on user type
+        function updateDashboardUI() {
+            if (!currentUser) return;
+            
+            // Set user info
+            userName.textContent = currentUser.name;
+            userTypeDisplay.textContent = currentUser.isDoctor ? 'Doctor' : 'Patient';
+            
+            // Set avatar initials
+            const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+            userAvatar.textContent = initials;
+            headerAvatar.textContent = initials;
+            
+            // Show appropriate menu
+            if (currentUser.isDoctor) {
+                patientMenu.classList.add('hidden');
+                doctorMenu.classList.remove('hidden');
+                
+                // Create quick access buttons for doctor
+                quickAccess.innerHTML = `
+                    <div class="bg-blue-50 p-6 rounded-lg cursor-pointer hover:bg-blue-100 transition duration-200" onclick="showPage('risk-prediction')">
+                        <div class="flex items-center mb-3">
+                            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-4">
+                                <i class="fas fa-chart-line text-xl"></i>
+                            </div>
+                            <h4 class="text-lg font-medium">Risk Prediction</h4>
+                        </div>
+                        <p class="text-gray-600 text-sm">Assess patient health risks using AI models</p>
+                    </div>
+                    <div class="bg-purple-50 p-6 rounded-lg cursor-pointer hover:bg-purple-100 transition duration-200" onclick="showPage('therapy')">
+                        <div class="flex items-center mb-3">
+                            <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 mr-4">
+                                <i class="fas fa-pills text-xl"></i>
+                            </div>
+                            <h4 class="text-lg font-medium">Therapy Effectiveness</h4>
+                        </div>
+                        <p class="text-gray-600 text-sm">Monitor and adjust treatment plans</p>
+                    </div>
+                    <div class="bg-green-50 p-6 rounded-lg cursor-pointer hover:bg-green-100 transition duration-200" onclick="showPage('treatment')">
+                        <div class="flex items-center mb-3">
+                            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600 mr-4">
+                                <i class="fas fa-procedures text-xl"></i>
+                            </div>
+                            <h4 class="text-lg font-medium">Treatment Plans</h4>
+                        </div>
+                        <p class="text-gray-600 text-sm">Create and manage patient treatments</p>
+                    </div>
+                    <div class="bg-indigo-50 p-6 rounded-lg cursor-pointer hover:bg-indigo-100 transition duration-200" onclick="showPage('chatbot')">
+                        <div class="flex items-center mb-3">
+                            <div class="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 mr-4">
+                                <i class="fas fa-comment-medical text-xl"></i>
+                            </div>
+                            <h4 class="text-lg font-medium">AI Chatbot</h4>
+                        </div>
+                        <p class="text-gray-600 text-sm">Get AI-powered medical insights</p>
+                    </div>
+                `;
+            } else {
+                patientMenu.classList.remove('hidden');
+                doctorMenu.classList.add('hidden');
+                
+                // Create quick access buttons for patient
+                quickAccess.innerHTML = `
+                    <div class="bg-blue-50 p-6 rounded-lg cursor-pointer hover:bg-blue-100 transition duration-200" onclick="showPage('chatbot')">
+                        <div class="flex items-center mb-3">
+                            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 mr-4">
+                                <i class="fas fa-comment-medical text-xl"></i>
+                            </div>
+                            <h4 class="text-lg font-medium">AI Health Assistant</h4>
+                        </div>
+                        <p class="text-gray-600 text-sm">Ask questions about your health</p>
+                    </div>
+                    <div class="bg-green-50 p-6 rounded-lg cursor-pointer hover:bg-green-100 transition duration-200" onclick="showPage('patient-profile')">
+                        <div class="flex items-center mb-3">
+                            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-green-600 mr-4">
+                                <i class="fas fa-user text-xl"></i>
+                            </div>
+                            <h4 class="text-lg font-medium">My Profile</h4>
+                        </div>
+                        <p class="text-gray-600 text-sm">View and update your health information</p>
+                    </div>
+                `;
+            }
+            
+            // Set up sidebar navigation
+            setupSidebarNavigation();
+        }
+        
+        // Show a specific page
+        function showPage(pageId) {
+            // Hide all pages first
+            Object.values(pages).forEach(page => {
+                if (page) page.classList.add('hidden');
+            });
+            
+            // Show the requested page
+            if (pages[pageId]) {
+                pages[pageId].classList.remove('hidden');
+                
+                // Update page title
+                const titles = {
+                    'patient-profile': 'My Profile',
+                    'chatbot': 'AI Chatbot',
+                    'risk-prediction': 'Risk Prediction',
+                    'therapy': 'Therapy Effectiveness',
+                    'treatment': 'Treatment Plans',
+                    'default': 'Dashboard'
+                };
+                
+                document.getElementById('page-title').textContent = titles[pageId] || 'Dashboard';
+            }
+        }
+        
+        // Set up sidebar navigation
+        function setupSidebarNavigation() {
+            // Clear previous active items
+            document.querySelectorAll('.sidebar-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            // Set click handlers for patient menu
+            if (patientMenu) {
+                const patientItems = patientMenu.querySelectorAll('li');
+                patientItems[0].addEventListener('click', () => showPage('chatbot'));
+                patientItems[1].addEventListener('click', () => showPage('patient-profile'));
+            }
+            
+            // Set click handlers for doctor menu
+            if (doctorMenu) {
+                const doctorItems = doctorMenu.querySelectorAll('li');
+                doctorItems[0].addEventListener('click', () => showPage('risk-prediction'));
+                doctorItems[1].addEventListener('click', () => showPage('therapy'));
+                doctorItems[2].addEventListener('click', () => showPage('treatment'));
+                doctorItems[3].addEventListener('click', () => showPage('chatbot'));
+            }
+        }
+        
+        // Chatbot functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatContainer = document.getElementById('chat-container');
+            const chatInput = document.getElementById('chat-input');
+            const sendBtn = document.getElementById('send-btn');
+            
+            function addMessage(message, isUser = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `flex mb-4 ${isUser ? 'justify-end' : ''}`;
+                
+                const bubbleDiv = document.createElement('div');
+                bubbleDiv.className = isUser ? 'max-w-xs md:max-w-md bg-blue-600 text-white p-3 user-bubble' : 'max-w-xs md:max-w-md bg-blue-100 p-3 chat-bubble';
+                bubbleDiv.innerHTML = `<p>${message}</p>`;
+                
+                messageDiv.appendChild(bubbleDiv);
+                chatContainer.appendChild(messageDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }
+            
+            function handleUserMessage() {
+                const message = chatInput.value.trim();
+                if (message) {
+                    addMessage(message, true);
+                    chatInput.value = '';
+                    
+                    // Simulate AI response
+                    setTimeout(() => {
+                        const responses = [
+                            "I understand your concern. Can you tell me more about your symptoms?",
+                            "Based on the information you've provided, I recommend consulting with your doctor about this.",
+                            "That's an important health question. Have you experienced any other symptoms?",
+                            "I suggest monitoring this for a few days and keeping track of any changes.",
+                            "For more accurate advice, please provide additional details about your medical history."
+                        ];
+                        
+                        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                        addMessage(randomResponse);
+                    }, 1000);
+                }
+            }
+            
+            sendBtn.addEventListener('click', handleUserMessage);
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleUserMessage();
+            });
+            
+            // Add medication in treatment plan
+            const addMedicationBtn = document.getElementById('add-medication');
+            if (addMedicationBtn) {
+                addMedicationBtn.addEventListener('click', () => {
+                    const medicationList = document.getElementById('medication-list');
+                    const newMedication = document.createElement('div');
+                    newMedication.className = 'flex items-center';
+                    newMedication.innerHTML = `
+                        <input type="text" class="flex-1 px-3 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Medication name">
+                        <input type="text" class="w-20 px-3 py-2 border-t border-b border-r focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Dose">
+                        <select class="w-24 px-3 py-2 border-t border-b border-r focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option>Daily</option>
+                            <option>BID</option>
+                            <option>TID</option>
+                            <option>QID</option>
+                            <option>Weekly</option>
+                        </select>
+                        <button class="px-3 py-2 bg-red-100 text-red-600 rounded-r-lg hover:bg-red-200">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    
+                    medicationList.appendChild(newMedication);
+                    
+                    // Add event to remove button
+                    const removeBtn = newMedication.querySelector('button');
+                    removeBtn.addEventListener('click', () => {
+                        medicationList.removeChild(newMedication);
+                    });
+                });
+            }
+        });
+    </script>
+</body>
+</html>
