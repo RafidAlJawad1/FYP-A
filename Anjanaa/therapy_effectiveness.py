@@ -11,9 +11,9 @@ df = pd.read_csv('/mnt/data/dv3.csv')
 
 # Create the binary target variable for classification based on HbA1c, FVG, and DDS
 df['therapy_effective'] = (
-    (df['HbA1c3'] < df['HbA1c1']) &    # HbA1c at visit 3 is less than visit 1
-    (df['FVG3'] < df['FVG1']) &        # FVG at visit 3 is less than visit 1
-    (df['DDS3'] < df['DDS1'])          # DDS at visit 3 is less than visit 1
+    (df['HbA1c3'] < df['HbA1c1']) &   
+    (df['FVG3'] < df['FVG1']) &        
+    (df['DDS3'] < df['DDS1'])          
 ).astype(int)  # 1 if therapy is effective, 0 otherwise
 
 # Define the features (X) and target (y) for classification
@@ -32,7 +32,7 @@ y = df[target]
 # OneHotEncoding for INSULIN REGIMEN
 preprocessor = ColumnTransformer(
     transformers=[('insulin', OneHotEncoder(), ['INSULIN REGIMEN'])],  
-    remainder='passthrough'  # Leave other columns as is
+    remainder='passthrough'  
 )
 
 # Train the Random Forest Classifier
