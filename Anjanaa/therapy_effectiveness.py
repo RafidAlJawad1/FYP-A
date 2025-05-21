@@ -5,8 +5,8 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 import matplotlib.pyplot as plt
-import joblib  # for saving the model
-from groq import Groq  # Groq SDK
+import joblib  
+from groq import Groq  
 
 # Load the dataset
 df = pd.read_csv('/mnt/data/dv3.csv')
