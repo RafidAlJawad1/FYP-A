@@ -132,7 +132,7 @@ if "<think>" in insights_raw and "</think>" in insights_raw:
 else:
     insights = insights_raw
 
-print("\n--- Patient-Specific Therapy Insights from LLM ---")
+print("\n--- Patient-Specific Therapy Insights ---")
 print(insights)
 
 # Generate Therapy Pathline (visualize the predictions over time)
