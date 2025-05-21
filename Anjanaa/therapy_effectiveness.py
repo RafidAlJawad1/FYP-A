@@ -101,7 +101,7 @@ print(f"Insulin Regimen: {patient['INSULIN REGIMEN']}")  # Show the patient's in
 
 # --- Groq LLM Integration for Patient-Specific Insights ---
 
-# Initialize Groq client (ensure you have set your API key in environment variable)
+# Initialize Groq client 
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 # Prepare input prompt for the LLM
