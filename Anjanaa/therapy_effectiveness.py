@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import OneHotEncoder
@@ -5,21 +6,22 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 import matplotlib.pyplot as plt
 import joblib  # for saving the model
+from groq import Groq  # Groq SDK
 
 # Load the dataset
-df = pd.read_csv('/mnt/data/dv3.csv')  
+df = pd.read_csv('/mnt/data/dv3.csv')
 
 # Create the binary target variable for classification based on HbA1c, FVG, and DDS
 df['therapy_effective'] = (
-    (df['HbA1c3'] < df['HbA1c1']) &   
-    (df['FVG3'] < df['FVG1']) &        
-    (df['DDS3'] < df['DDS1'])          
-).astype(int)  # 1 if therapy is effective, 0 otherwise
+    (df['HbA1c3'] < df['HbA1c1']) &
+    (df['FVG3'] < df['FVG1']) &
+    (df['DDS3'] < df['DDS1'])
+).astype(int)  
 
 # Define the features (X) and target (y) for classification
 features = [
-    'INSULIN REGIMEN', 'HbA1c1', 'HbA1c2', 'HbA1c3', 'HbA1c_Delta_1_2', 
-    'Gap from initial visit (days)', 'Gap from first clinical visit (days)', 
+    'INSULIN REGIMEN', 'HbA1c1', 'HbA1c2', 'HbA1c3', 'HbA1c_Delta_1_2',
+    'Gap from initial visit (days)', 'Gap from first clinical visit (days)',
     'eGFR', 'Reduction (%)', 'FVG1', 'FVG2', 'FVG3', 'FVG_Delta_1_2',
     'DDS1', 'DDS3', 'DDS_Trend_1_3'
 ]
@@ -31,8 +33,8 @@ y = df[target]
 
 # OneHotEncoding for INSULIN REGIMEN
 preprocessor = ColumnTransformer(
-    transformers=[('insulin', OneHotEncoder(), ['INSULIN REGIMEN'])],  
-    remainder='passthrough'  
+    transformers=[('insulin', OneHotEncoder(), ['INSULIN REGIMEN'])],
+    remainder='passthrough'  # Leave other columns as is
 )
 
 # Train the Random Forest Classifier
@@ -45,18 +47,18 @@ pipeline = Pipeline(steps=[('preprocessor', preprocessor), ('classifier', rf_mod
 pipeline.fit(X, y)
 
 # Save the trained pipeline (preprocessor + model)
-joblib.dump(pipeline, 'therapy_effectiveness_model.pkl')
+joblib.dump(pipeline, '/mnt/data/therapy_effectiveness_model.pkl')
 
-# Manually select a patient 
-patient_index = 15  # Example patient index
-patient = df.iloc[patient_index] 
+# Manually select a patient
+patient_index = 15  
+patient = df.iloc[patient_index]
 
 # Prepare the patient's data for prediction
 patient_data = {
-    'INSULIN REGIMEN': [patient['INSULIN REGIMEN']],  
-    'HbA1c1': [patient['HbA1c1']],  # Patient's HbA1c at visit 1
-    'HbA1c2': [patient['HbA1c2']],  # Patient's HbA1c at visit 2
-    'HbA1c3': [patient['HbA1c3']],  # Patient's HbA1c at visit 3
+    'INSULIN REGIMEN': [patient['INSULIN REGIMEN']],
+    'HbA1c1': [patient['HbA1c1']],
+    'HbA1c2': [patient['HbA1c2']],
+    'HbA1c3': [patient['HbA1c3']],
     'HbA1c_Delta_1_2': [patient['HbA1c_Delta_1_2']],
     'Gap from initial visit (days)': [patient['Gap from initial visit (days)']],
     'Gap from first clinical visit (days)': [patient['Gap from first clinical visit (days)']],
@@ -76,18 +78,17 @@ patient_df = pd.DataFrame(patient_data)
 
 # Make predictions for the specific patient at each visit
 predictions = []
-insulin_regimen = patient['INSULIN REGIMEN']  
 
 # Visit 1
-patient_df['HbA1c1'] = [patient['HbA1c1']]  
+patient_df['HbA1c1'] = [patient['HbA1c1']]
 predictions.append(pipeline.predict_proba(patient_df)[:, 1][0])
 
 # Visit 2
-patient_df['HbA1c1'] = [patient['HbA1c2']]  
+patient_df['HbA1c1'] = [patient['HbA1c2']]
 predictions.append(pipeline.predict_proba(patient_df)[:, 1][0])
 
 # Visit 3
-patient_df['HbA1c1'] = [patient['HbA1c3']]  
+patient_df['HbA1c1'] = [patient['HbA1c3']]
 predictions.append(pipeline.predict_proba(patient_df)[:, 1][0])
 
 # Output effectiveness as percentage for each visit and insulin regimen
@@ -96,7 +97,43 @@ for i, prob in enumerate(predictions):
     effectiveness_status = "Effective" if prob >= 0.5 else "Ineffective"
     print(f"Visit {i+1}: {effectiveness_status} ({effectiveness_percentage}% probability)")
 
-print(f"Insulin Regimen: {insulin_regimen}")  
+print(f"Insulin Regimen: {patient['INSULIN REGIMEN']}")  # Show the patient's insulin regimen
+
+# --- Groq LLM Integration for Patient-Specific Insights ---
+
+# Initialize Groq client (ensure you have set your API key in environment variable)
+client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
+
+# Prepare input prompt for the LLM
+prob_strings = [f"Visit {i+1}: {round(prob * 100, 2)}%" for i, prob in enumerate(predictions)]
+
+# Prepare input prompt for the LLM with length instruction
+prompt = (
+    f"The patient is undergoing the insulin regimen: {patient['INSULIN REGIMEN']}.\n"
+    f"The predicted therapy effectiveness probabilities over three visits are:\n"
+    + "\n".join(prob_strings) +
+    "\n\nBased on this information, provide personalized insights or advice regarding this patient's therapy effectiveness."
+    "\nPlease keep your response concise and limit it to no more than 300 words."
+)
+
+# Call Groq LLM for insights
+llm = client.chat.completions.create(
+    model="deepseek-r1-distill-llama-70b",
+    messages=[
+        {"role": "system", "content": "You are a helpful medical AI assistant."},
+        {"role": "user", "content": prompt}
+    ]
+)
+
+insights_raw = llm.choices[0].message.content
+
+if "<think>" in insights_raw and "</think>" in insights_raw:
+    insights = insights_raw.split("</think>", 1)[1].strip()
+else:
+    insights = insights_raw
+
+print("\n--- Patient-Specific Therapy Insights from LLM ---")
+print(insights)
 
 # Generate Therapy Pathline (visualize the predictions over time)
 time_points = ['Visit 1', 'Visit 2', 'Visit 3']
