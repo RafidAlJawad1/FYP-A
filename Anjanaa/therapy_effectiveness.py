@@ -6,7 +6,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 import matplotlib.pyplot as plt
 import joblib  
-from groq import Groq  
+from groq import Groq 
 
 # Load the dataset
 df = pd.read_csv('/mnt/data/dv3.csv')
@@ -16,7 +16,7 @@ df['therapy_effective'] = (
     (df['HbA1c3'] < df['HbA1c1']) &
     (df['FVG3'] < df['FVG1']) &
     (df['DDS3'] < df['DDS1'])
-).astype(int)  
+).astype(int)
 
 # Define the features (X) and target (y) for classification
 features = [
@@ -50,7 +50,7 @@ pipeline.fit(X, y)
 joblib.dump(pipeline, '/mnt/data/therapy_effectiveness_model.pkl')
 
 # Manually select a patient
-patient_index = 15  
+patient_index = 15
 patient = df.iloc[patient_index]
 
 # Prepare the patient's data for prediction
@@ -97,7 +97,7 @@ for i, prob in enumerate(predictions):
     effectiveness_status = "Effective" if prob >= 0.5 else "Ineffective"
     print(f"Visit {i+1}: {effectiveness_status} ({effectiveness_percentage}% probability)")
 
-print(f"Insulin Regimen: {patient['INSULIN REGIMEN']}")  # Show the patient's insulin regimen
+print(f"Insulin Regimen: {patient['INSULIN REGIMEN']}")  
 
 # --- Groq LLM Integration for Patient-Specific Insights ---
 
@@ -107,20 +107,19 @@ client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 # Prepare input prompt for the LLM
 prob_strings = [f"Visit {i+1}: {round(prob * 100, 2)}%" for i, prob in enumerate(predictions)]
 
-# Prepare input prompt for the LLM with length instruction
+# Prepare input prompt for the LLM
 prompt = (
     f"The patient is undergoing the insulin regimen: {patient['INSULIN REGIMEN']}.\n"
     f"The predicted therapy effectiveness probabilities over three visits are:\n"
     + "\n".join(prob_strings) +
     "\n\n"
-    "Based on these probabilities, provide personalized insights or advice regarding this patient's therapy effectiveness.\n"
-    "Additionally, justify the therapy effectiveness probabilities by analyzing the patient's HbA1c, FVG, and DDS score trends.\n"
-    "For example, indicate if decreasing trends in these scores support the predicted effectiveness or if there are concerns.\n"
+    "Based on these probabilities, provide only the single most important personalized recommendation regarding this patient's therapy effectiveness.\n"
+    "Also, briefly justify the therapy effectiveness probabilities by summarizing the trends in the patient's HbA1c, FVG, and DDS scores in simple and concise terms.\n"
     "Use the following patient score values for your analysis:\n"
     f"- HbA1c scores: {patient['HbA1c1']}, {patient['HbA1c2']}, {patient['HbA1c3']}\n"
     f"- FVG scores: {patient['FVG1']}, {patient['FVG2']}, {patient['FVG3']}\n"
     f"- DDS scores: {patient['DDS1']}, {patient['DDS3']}\n"
-    "Please keep your response concise and limit it to no more than 360 words."
+    "Please keep your entire response under 150 words and focused on clarity and brevity."
 )
 
 # Call Groq LLM for insights
