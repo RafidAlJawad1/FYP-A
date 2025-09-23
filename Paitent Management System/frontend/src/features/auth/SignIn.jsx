@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from '../UserContext.jsx';
+import { useUser } from '@/UserContext.jsx';
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
@@ -12,12 +12,12 @@ const SignIn = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const laravelUrl = import.meta.env.VITE_LARAVEL_URL || "http://127.0.0.1:8000";
+    const laravelUrl = import.meta.env.VITE_LARAVEL_URL || 'http://127.0.0.1:8000';
     try {
       const response = await fetch(`${laravelUrl}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();

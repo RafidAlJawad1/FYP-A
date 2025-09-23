@@ -1,4 +1,4 @@
-// src/pages/ManageUsers.jsx
+// src/features/admin/ManageUsers.jsx
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Pencil, Trash2 } from "lucide-react";
@@ -42,7 +42,6 @@ const ManageUsers = () => {
     }
   };
 
-  // Filters
   const filteredUsers = users.filter((u) => {
     const matchesSearch =
       searchTerm === "" ||
@@ -57,7 +56,6 @@ const ManageUsers = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
-      {/* Header */}
       <header className="bg-gradient-to-r from-teal-500 to-green-500 text-white py-4 px-6 rounded-lg shadow-md mb-6">
         <div className="flex justify-between items-center">
           <div>
@@ -67,7 +65,6 @@ const ManageUsers = () => {
         </div>
       </header>
 
-      {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-4 items-center">
         <input
           type="text"
@@ -89,7 +86,6 @@ const ManageUsers = () => {
         </select>
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto bg-white shadow rounded-lg border">
         <table className="min-w-full text-sm text-left text-gray-700">
           <thead className="bg-gray-100 text-xs uppercase font-semibold text-gray-500">

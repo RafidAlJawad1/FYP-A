@@ -8,7 +8,7 @@ const UpdatePatient = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const laravelUrl = import.meta.env.VITE_LARAVEL_URL || "http://localhost:8000";
+    const laravelUrl = import.meta.env.VITE_LARAVEL_URL || 'http://localhost:8000';
     fetch(`${laravelUrl}/api/patients/${id}`)
       .then((res) => res.json())
       .then((data) => {
@@ -35,7 +35,7 @@ const UpdatePatient = () => {
           dds_3: data.dds_3 || '',
           first_visit_date: data.first_visit_date || '',
           second_visit_date: data.second_visit_date || '',
-          third_visit_date: data.third_visit_date || ''
+          third_visit_date: data.third_visit_date || '',
         });
         setLoading(false);
       })
@@ -48,7 +48,7 @@ const UpdatePatient = () => {
   const handleChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
@@ -72,11 +72,11 @@ const UpdatePatient = () => {
     };
 
     try {
-      const laravelUrl = import.meta.env.VITE_LARAVEL_URL || "http://localhost:8000";
+      const laravelUrl = import.meta.env.VITE_LARAVEL_URL || 'http://localhost:8000';
       const res = await fetch(`${laravelUrl}/api/patients/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(enrichedData)
+        body: JSON.stringify(enrichedData),
       });
 
       if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
@@ -99,8 +99,6 @@ const UpdatePatient = () => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
-
-        {/* Basic Info */}
         <section className="bg-blue-50 p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4 text-blue-700">🧍‍♂️ Basic Information</h2>
           <div className="grid md:grid-cols-2 gap-4">
@@ -114,7 +112,6 @@ const UpdatePatient = () => {
           </div>
         </section>
 
-        {/* Medical Background */}
         <section className="bg-green-50 p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4 text-green-700">📝 Medical Background</h2>
           <div className="grid md:grid-cols-2 gap-4">
@@ -124,10 +121,8 @@ const UpdatePatient = () => {
           </div>
         </section>
 
-        {/* Clinical Indicators */}
         <section className="bg-purple-50 p-6 rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4 text-purple-700">📊 Clinical Indicators</h2>
-
           <div className="mb-6">
             <h3 className="font-medium text-gray-700 mb-2">Fasting Venous Glucose (FVG)</h3>
             <div className="grid md:grid-cols-3 gap-4">
@@ -166,19 +161,11 @@ const UpdatePatient = () => {
           </div>
         </section>
 
-        {/* Buttons */}
         <div className="flex justify-end gap-4 pt-4">
-          <button
-            type="button"
-            onClick={() => navigate(-1)}
-            className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-5 py-2 rounded"
-          >
+          <button type="button" onClick={() => navigate(-1)} className="bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold px-5 py-2 rounded">
             Cancel
           </button>
-          <button
-            type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded"
-          >
+          <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded">
             Save Changes
           </button>
         </div>
@@ -187,8 +174,7 @@ const UpdatePatient = () => {
   );
 };
 
-// Reusable Input
-const Input = ({ label, name, value, onChange, placeholder, type = "text", className = "" }) => (
+const Input = ({ label, name, value, onChange, placeholder, type = 'text', className = '' }) => (
   <div className={className}>
     <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
     <input
@@ -202,8 +188,7 @@ const Input = ({ label, name, value, onChange, placeholder, type = "text", class
   </div>
 );
 
-// Reusable Textarea
-const Textarea = ({ label, name, value, onChange, placeholder, className = "" }) => (
+const Textarea = ({ label, name, value, onChange, placeholder, className = '' }) => (
   <div className={className}>
     <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
     <textarea
@@ -217,8 +202,7 @@ const Textarea = ({ label, name, value, onChange, placeholder, className = "" })
   </div>
 );
 
-// Reusable Select
-const Select = ({ label, name, value, onChange, options = [], className = "" }) => (
+const Select = ({ label, name, value, onChange, options = [], className = '' }) => (
   <div className={className}>
     <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
     <select
@@ -229,7 +213,9 @@ const Select = ({ label, name, value, onChange, options = [], className = "" }) 
     >
       <option value="">Select {label.toLowerCase()}</option>
       {options.map((opt) => (
-        <option key={opt} value={opt}>{opt}</option>
+        <option key={opt} value={opt}>
+          {opt}
+        </option>
       ))}
     </select>
   </div>

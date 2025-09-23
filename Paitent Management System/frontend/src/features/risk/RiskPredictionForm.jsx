@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import axios from 'axios';
+import { patientsApi } from '../../api/patients';
+import { fastApiClient } from '../../api/client';
+import MetricBox from '../../components/MetricBox.jsx';
 
 function RiskPredictionForm() {
   const { id } = useParams();
@@ -12,10 +14,7 @@ function RiskPredictionForm() {
   useEffect(() => {
     async function fetchPatientAndPredict() {
       try {
-        const laravelUrl = import.meta.env.VITE_LARAVEL_URL || "http://localhost:8000";
-        const fastApiUrl = import.meta.env.VITE_FASTAPI_URL || "http://localhost:5000";
-        const res = await axios.get(`${laravelUrl}/api/patients/${id}`);
-        const data = res.data;
+        const data = await patientsApi.getById(id);
         setPatientData(data);
 
         const features = [
@@ -27,16 +26,13 @@ function RiskPredictionForm() {
           parseFloat(data.reduction_a)
         ];
 
-
         if (features.some(val => isNaN(val))) {
           setError('Invalid or missing input data.');
           setLoading(false);
           return;
         }
 
-        const predictionRes = await axios.post(`${fastApiUrl}/predict`, {
-          features: features
-        });
+        const predictionRes = await fastApiClient.post('/predict', { features });
 
         const numericRisk = parseFloat(predictionRes.data.prediction);
         const riskLabel = mapNumericRisk(numericRisk);
@@ -101,7 +97,6 @@ function RiskPredictionForm() {
 
     return factors;
   };
-
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10 space-y-10">
@@ -171,8 +166,6 @@ function RiskPredictionForm() {
             </div>
           </>
         )}
-
-
       </div>
 
       <p className="text-center text-xs text-gray-400 mt-6">
@@ -181,12 +174,4 @@ function RiskPredictionForm() {
     </div>
   );
 }
-
-const MetricBox = ({ label, value }) => (
-  <div className="bg-gray-50 border rounded-lg p-4 shadow-sm">
-    <div className="text-gray-800 font-semibold text-lg">{value ?? '—'}</div>
-    <div className="text-xs text-gray-600">{label}</div>
-  </div>
-);
-
 export default RiskPredictionForm;

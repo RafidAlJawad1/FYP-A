@@ -12,20 +12,18 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 import { useParams } from 'react-router-dom';
+import { patientsApi } from '@/api/patients';
 
 const TreatmentRecommendation = () => {
   const { id } = useParams();
   const [patient, setPatient] = useState(null);
   const [aiResponse, setAiResponse] = useState("");
   const [loading, setLoading] = useState(false);
-  const [ragContext, setRagContext] = useState(""); // Add this to state
-
+  const [ragContext, setRagContext] = useState("");
 
   useEffect(() => {
-    const laravelUrl = import.meta.env.VITE_LARAVEL_URL || "http://localhost:8000";
-    fetch(`${laravelUrl}/api/patients/${id}`)
-      .then(res => res.json())
-      .then(data => setPatient(data))
+    patientsApi.getById(id)
+      .then(setPatient)
       .catch(err => console.error('Error fetching patient:', err));
   }, [id]);
 
@@ -137,7 +135,6 @@ Instructions:
         <p className="text-sm text-indigo-600 mt-2">AI-based treatment insights below</p>
       </div>
 
-      {/* Patient Overview */}
       <section className="grid md:grid-cols-2 gap-6">
         <InfoBox label="Name" value={patient.name} />
         <InfoBox label="Age" value={patient.age} />
@@ -145,7 +142,6 @@ Instructions:
         <InfoBox label="Insulin Regimen" value={patient.insulin_regimen_type || 'N/A'} />
       </section>
 
-      {/* Data Summary */}
       <section className="grid md:grid-cols-4 gap-4">
         <SummaryCard label="HbA1c Reduction" value={`↓ ${hba1cDrop}%`} color="green" />
         <SummaryCard label="FVG Δ (1→2)" value={`${fvgDrop}`} color="blue" />
@@ -153,12 +149,6 @@ Instructions:
         <SummaryCard label="eGFR" value={`${egfr} mL/min`} color="gray" />
       </section>
 
-      {/* Kidney & DDS Cards */}
-      <section className="grid md:grid-cols-3 gap-6">
-        <StatBox label="Current Medications" value={patient.medications || 'N/A'} />
-      </section>
-
-      {/* AI Output */}
       {loading ? (
         <section className="text-center text-blue-600 flex flex-col items-center">
           <div className="text-lg font-medium animate-pulse">Generating treatment report...</div>
@@ -176,20 +166,8 @@ Instructions:
               <section key={index} className="bg-green-50 border border-green-200 rounded-xl shadow p-6 text-green-900 space-y-4">
                 <h2 className="text-lg font-bold mb-2">Clinical Trend Overview</h2>
                 <div className="grid md:grid-cols-3 gap-4">
-                  <TrendCard
-                    label="HbA1c Trend"
-                    values={[patient.hba1c_1st_visit, patient.hba1c_2nd_visit, patient.hba1c_3rd_visit]}
-                    unit="%"
-                    warn={patient.hba1c_3rd_visit > patient.hba1c_2nd_visit}
-                  />
-
-                  <TrendCard
-                    label="FVG Trend"
-                    values={[patient.fvg_1, patient.fvg_2, patient.fvg_3]}
-                    unit="mmol/L"
-                    warn={patient.fvg_3 > patient.fvg_2}
-                  />
-
+                  <TrendCard label="HbA1c Trend" values={[patient.hba1c_1st_visit, patient.hba1c_2nd_visit, patient.hba1c_3rd_visit]} unit="%" warn={patient.hba1c_3rd_visit > patient.hba1c_2nd_visit} />
+                  <TrendCard label="FVG Trend" values={[patient.fvg_1, patient.fvg_2, patient.fvg_3]} unit="mmol/L" warn={patient.fvg_3 > patient.fvg_2} />
                   <TrendCard label="HbA1c Δ / 91d" values={[patient.reduction_a?.toFixed(2)]} unit="%" />
                 </div>
               </section>
@@ -204,7 +182,7 @@ Instructions:
                 color: "bg-red-500",
                 note: patient.hba1c_1st_visit > 8 ? "HbA1c > 8% — elevated long-term complication risk" :
                   patient.hba1c_1st_visit > 7 ? "HbA1c > 7% — moderate glycemic risk" :
-                    "HbA1c controlled — lower complication likelihood"
+                  "HbA1c controlled — lower complication likelihood"
               },
               {
                 label: "Kidney Function (eGFR)",
@@ -212,7 +190,7 @@ Instructions:
                 color: "bg-yellow-400",
                 note: patient.egfr > 90 ? "Normal kidney function" :
                   patient.egfr > 60 ? "Mild renal decline — monitor advised" :
-                    "Possible CKD — close monitoring required"
+                  "Possible CKD — close monitoring required"
               },
               {
                 label: "Medication Adherence Risk",
@@ -220,7 +198,7 @@ Instructions:
                 color: "bg-blue-500",
                 note: patient.dds_trend_1_3 > 1.5 ? "High DDS — patient distress may hinder adherence" :
                   patient.dds_trend_1_3 > 0.5 ? "Moderate DDS — support recommended" :
-                    "Low DDS — good adherence likelihood"
+                  "Low DDS — good adherence likelihood"
               }
             ];
 
@@ -237,11 +215,9 @@ Instructions:
                     </p>
                   </div>
                 ))}
-
               </section>
             );
           }
-
 
           if (title.toLowerCase().includes("medication")) {
             return (
@@ -265,13 +241,9 @@ Instructions:
                 <h2 className="text-lg font-bold mb-2">{title.trim()}</h2>
                 <ul className="grid md:grid-cols-2 gap-2 text-sm list-disc list-inside">
                   {lines.slice(0, 6).map((line, i) => {
-                    const cleanLine = line.replace(/^\s*[-*]\s*/, ""); // remove leading "-" or "*"
+                    const cleanLine = line.replace(/^\s*[-*]\s*/, "");
                     return (
-                      <li
-                        key={i}
-                        className="leading-relaxed"
-                        dangerouslySetInnerHTML={{ __html: parseMarkdownBold(cleanLine.trim()) }}
-                      />
+                      <li key={i} className="leading-relaxed" dangerouslySetInnerHTML={{ __html: parseMarkdownBold(cleanLine.trim()) }} />
                     );
                   })}
                 </ul>
@@ -284,8 +256,7 @@ Instructions:
               <section key={index} className="bg-yellow-50 border border-yellow-200 rounded-xl shadow p-6 text-yellow-900">
                 <h2 className="text-lg font-bold mb-4">📈 {title.trim()}</h2>
                 <Line data={hba1cForecastChart} options={{ responsive: true, plugins: { legend: { display: false } } }} />
-                <div className="text-sm whitespace-pre-line leading-relaxed mt-4"
-                  dangerouslySetInnerHTML={{ __html: parseMarkdownBold(content) }} />
+                <div className="text-sm whitespace-pre-line leading-relaxed mt-4" dangerouslySetInnerHTML={{ __html: parseMarkdownBold(content) }} />
               </section>
             );
           }
@@ -293,8 +264,7 @@ Instructions:
           return (
             <section key={index} className="bg-gray-50 border border-gray-200 shadow rounded-xl p-6">
               <h2 className="text-lg font-bold text-gray-800 mb-2">{title.trim()}</h2>
-              <div className="text-sm text-gray-700 whitespace-pre-line leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: parseMarkdownBold(content) }} />
+              <div className="text-sm text-gray-700 whitespace-pre-line leading-relaxed" dangerouslySetInnerHTML={{ __html: parseMarkdownBold(content) }} />
             </section>
           );
         })
@@ -303,9 +273,7 @@ Instructions:
       {ragContext && (
         <div className="mt-6 bg-white border border-blue-200 rounded-lg shadow-sm p-4 text-sm">
           <details>
-            <summary className="cursor-pointer font-semibold text-blue-700">
-              📚 Show AI Context (Medical Book References)
-            </summary>
+            <summary className="cursor-pointer font-semibold text-blue-700">📚 Show AI Context (Medical Book References)</summary>
             <pre className="mt-2 whitespace-pre-wrap text-gray-700">{ragContext}</pre>
           </details>
         </div>
@@ -314,7 +282,6 @@ Instructions:
   );
 };
 
-// COMPONENTS
 const InfoBox = ({ label, value }) => (
   <div className="bg-gray-50 border border-gray-200 rounded p-4 shadow-sm">
     <h4 className="text-xs font-semibold text-gray-500 uppercase">{label}</h4>
@@ -338,14 +305,6 @@ const SummaryCard = ({ label, value, color }) => {
   );
 };
 
-const StatBox = ({ label, value, note }) => (
-  <div className="bg-gray-50 border border-gray-200 p-4 rounded shadow-sm">
-    <h4 className="text-sm text-gray-700 font-semibold">{label}</h4>
-    <p className="text-xl font-bold text-gray-900">{value}</p>
-    {note && <p className="text-sm text-gray-500 mt-1">{note}</p>}
-  </div>
-);
-
 const TrendCard = ({ label, values, unit, warn = false }) => {
   let trendIcon = '–';
   let trendText = 'Stable';
@@ -360,14 +319,12 @@ const TrendCard = ({ label, values, unit, warn = false }) => {
     }
   }
 
-  const boxClass = warn
-    ? "bg-red-100 border border-red-300 text-red-800"
-    : "bg-white border border-green-100 text-green-700";
+  const boxClass = warn ? 'bg-red-100 border border-red-300 text-red-800' : 'bg-white border border-green-100 text-green-700';
 
   return (
     <div className={`${boxClass} p-4 rounded shadow-sm text-center`}>
       <h4 className="text-xs uppercase font-semibold">{label}</h4>
-      <p className="text-xl font-bold">{values.join(" → ")} {unit}</p>
+      <p className="text-xl font-bold">{values.join(' → ')} {unit}</p>
       <p className="text-sm mt-1">{trendIcon} {trendText}</p>
     </div>
   );

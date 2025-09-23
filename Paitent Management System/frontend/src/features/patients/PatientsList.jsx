@@ -1,42 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Eye } from 'lucide-react';
-import { useUser } from '../UserContext';
+import { useUser } from '../../UserContext';
+import { patientsApi } from '../../api/patients';
 
 const PatientsList = ({ hideHeader = false }) => {
   const [patients, setPatients] = useState([]);
+  const [meta, setMeta] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('All Status');
   const [insulinFilter, setInsulinFilter] = useState('All Insulin Types');
   const [genderFilter, setGenderFilter] = useState('All Genders');
   const [pageSize, setPageSize] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
-  const { user } = useUser(); // get current logged-in user
+  const { user } = useUser();
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this patient?")) return;
-
+    if (!window.confirm('Are you sure you want to delete this patient?')) return;
     try {
-      const laravelUrl = import.meta.env.VITE_LARAVEL_URL || "http://localhost:8000";
-      await fetch(`${laravelUrl}/api/admin/patients/${id}`, {
-        method: 'DELETE',
-      });
-
-      // Update local state to remove patient immediately
+      const laravelUrl = import.meta.env.VITE_LARAVEL_URL || 'http://localhost:8000';
+      await fetch(`${laravelUrl}/api/admin/patients/${id}`, { method: 'DELETE' });
       setPatients((prev) => prev.filter((p) => p.id !== id));
     } catch (err) {
-      console.error("Error deleting patient:", err);
+      console.error('Error deleting patient:', err);
     }
   };
 
-
   useEffect(() => {
-    const laravelUrl = import.meta.env.VITE_LARAVEL_URL || "http://localhost:8000";
-    fetch(`${laravelUrl}/api/patients`)
-      .then((res) => res.json())
-      .then((data) => setPatients(data))
+    const params = {
+      perPage: pageSize,
+      page: currentPage,
+      search: searchTerm || undefined,
+      gender: genderFilter !== 'All Genders' ? genderFilter : undefined,
+      insulin: insulinFilter !== 'All Insulin Types' ? insulinFilter : undefined,
+    };
+    patientsApi
+      .list(params)
+      .then(({ data, meta }) => {
+        setPatients(data || []);
+        setMeta(meta || null);
+      })
       .catch((err) => console.error('Error:', err));
-  }, []);
+  }, [pageSize, currentPage, searchTerm, genderFilter, insulinFilter]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -45,37 +50,28 @@ const PatientsList = ({ hideHeader = false }) => {
   const formatTrend = (val) => {
     if (val == null) return '-';
     const num = parseFloat(val);
-    const color =
-      num > 0 ? 'text-red-500' : num < 0 ? 'text-green-600' : 'text-yellow-500';
+    const color = num > 0 ? 'text-red-500' : num < 0 ? 'text-green-600' : 'text-yellow-500';
     return <span className={`font-semibold ${color}`}>{num}</span>;
   };
 
-  const formatGap = (days) =>
-    days != null ? `${Math.round(days)} days` : '-';
+  const formatGap = (days) => (days != null ? `${Math.round(days)} days` : '-');
 
   const getStatusTag = (p) => {
     const hbDrop = p.reduction_a_2_3 ?? null;
     const fvgDelta = p.fvg_delta_1_2 ?? null;
     const ddsTrend = p.dds_trend_1_3 ?? null;
 
-    // HbA1c priority
     if (hbDrop !== null) {
       if (hbDrop > 1.0) return 'Improving';
       if (hbDrop < 0) return 'Worsening';
-      // 0–1% drop → Stable
     }
-
-    // FVG fallback
     if (fvgDelta !== null) {
       if (fvgDelta < -1.0) return 'Improving';
       if (fvgDelta > 1.0) return 'Worsening';
     }
-
-    // DDS advisory
     if (ddsTrend !== null && ddsTrend > 1) {
       return 'Needs Review';
     }
-
     return 'Stable';
   };
 
@@ -89,15 +85,7 @@ const PatientsList = ({ hideHeader = false }) => {
   };
 
   const statusOptions = ['All Status', 'Improving', 'Stable', 'Worsening'];
-  const insulinOptions = [
-    'All Insulin Types',
-    'Basal',
-    'Bolus',
-    'PBD',
-    'BB',
-    'PTDS',
-    'None',
-  ];
+  const insulinOptions = ['All Insulin Types', 'Basal', 'Bolus', 'PBD', 'BB', 'PTDS', 'None'];
   const genderOptions = ['All Genders', 'Male', 'Female'];
   const pageSizeOptions = [10, 25, 50, 100];
 
@@ -114,37 +102,28 @@ const PatientsList = ({ hideHeader = false }) => {
 
     return (
       (statusFilter === 'All Status' || status === statusFilterNormalized) &&
-      (insulinFilter === 'All Insulin Types' ||
-        insulin === insulinFilterNormalized) &&
+      (insulinFilter === 'All Insulin Types' || insulin === insulinFilterNormalized) &&
       (genderFilter === 'All Genders' || gender === genderFilterNormalized) &&
       (searchTermNormalized === '' || name.includes(searchTermNormalized))
     );
   });
 
-  const totalPages = Math.ceil(filteredPatients.length / pageSize);
-  const startIndex = (currentPage - 1) * pageSize;
-  const visiblePatients = filteredPatients.slice(
-    startIndex,
-    startIndex + pageSize
-  );
+  const totalPages = meta?.last_page ?? Math.ceil(filteredPatients.length / pageSize);
+  const visiblePatients = filteredPatients;
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
-      {/* Conditional Header */}
       {!hideHeader && (
         <header className="bg-teal-500 text-white py-4 px-6 rounded-lg shadow-md mb-6">
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-xl font-bold">Patient Management</h1>
-              <p className="text-sm">
-                Monitor clinical progress and therapy effectiveness
-              </p>
+              <p className="text-sm">Monitor clinical progress and therapy effectiveness</p>
             </div>
           </div>
         </header>
       )}
 
-      {/* Search */}
       <div className="mb-4">
         <input
           type="text"
@@ -155,13 +134,8 @@ const PatientsList = ({ hideHeader = false }) => {
         />
       </div>
 
-      {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-4 items-center">
-        <select
-          className="border rounded px-3 py-2"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-        >
+        <select className="border rounded px-3 py-2" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
           {statusOptions.map((opt) => (
             <option key={opt} value={opt}>
               {opt}
@@ -169,11 +143,7 @@ const PatientsList = ({ hideHeader = false }) => {
           ))}
         </select>
 
-        <select
-          className="border rounded px-3 py-2"
-          value={insulinFilter}
-          onChange={(e) => setInsulinFilter(e.target.value)}
-        >
+        <select className="border rounded px-3 py-2" value={insulinFilter} onChange={(e) => setInsulinFilter(e.target.value)}>
           {insulinOptions.map((opt) => (
             <option key={opt} value={opt}>
               {opt}
@@ -181,11 +151,7 @@ const PatientsList = ({ hideHeader = false }) => {
           ))}
         </select>
 
-        <select
-          className="border rounded px-3 py-2"
-          value={genderFilter}
-          onChange={(e) => setGenderFilter(e.target.value)}
-        >
+        <select className="border rounded px-3 py-2" value={genderFilter} onChange={(e) => setGenderFilter(e.target.value)}>
           {genderOptions.map((opt) => (
             <option key={opt} value={opt}>
               {opt}
@@ -196,9 +162,7 @@ const PatientsList = ({ hideHeader = false }) => {
         <select
           className="border rounded px-3 py-2 ml-auto"
           value={`${pageSize} per page`}
-          onChange={(e) =>
-            setPageSize(Number(e.target.value.split(' ')[0]))
-          }
+          onChange={(e) => setPageSize(Number(e.target.value.split(' ')[0]))}
         >
           {pageSizeOptions.map((size) => (
             <option key={size} value={`${size} per page`}>
@@ -208,32 +172,13 @@ const PatientsList = ({ hideHeader = false }) => {
         </select>
       </div>
 
-      {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
-        <SummaryCard
-          label="Total Patients"
-          value={patients.length}
-          type="total"
-        />
-        <SummaryCard
-          label="Improving"
-          value={patients.filter((p) => getStatusTag(p) === 'Improving').length}
-          type="improving"
-        />
-        <SummaryCard
-          label="Stable"
-          value={patients.filter((p) => getStatusTag(p) === 'Stable').length}
-          type="stable"
-        />
-        <SummaryCard
-          label="Worsening"
-          value={patients.filter((p) => getStatusTag(p) === 'Worsening').length}
-          type="worsening"
-        />
+        <SummaryCard label="Total Patients" value={meta?.total ?? patients.length} type="total" />
+        <SummaryCard label="Improving" value={patients.filter((p) => getStatusTag(p) === 'Improving').length} type="improving" />
+        <SummaryCard label="Stable" value={patients.filter((p) => getStatusTag(p) === 'Stable').length} type="stable" />
+        <SummaryCard label="Worsening" value={patients.filter((p) => getStatusTag(p) === 'Worsening').length} type="worsening" />
       </div>
 
-
-      {/* Table */}
       <div className="overflow-x-auto bg-white shadow rounded-lg border">
         <table className="min-w-full text-sm text-left text-gray-700">
           <thead className="bg-gray-100 text-xs uppercase font-semibold text-gray-500">
@@ -260,10 +205,7 @@ const PatientsList = ({ hideHeader = false }) => {
           <tbody>
             {filteredPatients.length === 0 ? (
               <tr>
-                <td
-                  colSpan="17"
-                  className="text-center py-4 text-gray-500"
-                >
+                <td colSpan="17" className="text-center py-4 text-gray-500">
                   No matching patients found.
                 </td>
               </tr>
@@ -271,30 +213,18 @@ const PatientsList = ({ hideHeader = false }) => {
               visiblePatients.map((p) => (
                 <tr key={p.id} className="border-b hover:bg-gray-50">
                   <td className="px-4 py-3 text-blue-600 font-medium">
-                    <Link
-                      to={`/patient/${p.id}`}
-                      className="hover:underline"
-                    >
+                    <Link to={`/patient/${p.id}`} className="hover:underline">
                       {p.name}
                     </Link>
                   </td>
                   <td className="px-4 py-3">{p.age}</td>
                   <td className="px-4 py-3">
-                    <span
-                      className={`text-xs px-2 py-1 rounded-full ${p.gender === 'Male'
-                        ? 'bg-blue-100 text-blue-600'
-                        : 'bg-pink-100 text-pink-600'
-                        }`}
-                    >
+                    <span className={`text-xs px-2 py-1 rounded-full ${p.gender === 'Male' ? 'bg-blue-100 text-blue-600' : 'bg-pink-100 text-pink-600'}`}>
                       {p.gender}
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <span
-                      className={`text-xs px-2 py-1 rounded-full ${insulinColors[p.insulin_regimen_type] ||
-                        'bg-gray-100 text-gray-500'
-                        }`}
-                    >
+                    <span className={`text-xs px-2 py-1 rounded-full ${insulinColors[p.insulin_regimen_type] || 'bg-gray-100 text-gray-500'}`}>
                       {p.insulin_regimen_type || '-'}
                     </span>
                   </td>
@@ -305,25 +235,12 @@ const PatientsList = ({ hideHeader = false }) => {
                   <td className="px-4 py-3">{p.avg_fvg_1_2 ?? '-'}</td>
                   <td className="px-4 py-3">{formatTrend(p.fvg_delta_1_2)}</td>
                   <td className="px-4 py-3">{formatTrend(p.reduction_a)}</td>
-                  <td className="px-4 py-3">
-                    {formatTrend(p.reduction_a_per_day)}
-                  </td>
+                  <td className="px-4 py-3">{formatTrend(p.reduction_a_per_day)}</td>
                   <td className="px-4 py-3">{formatTrend(p.dds_trend_1_3)}</td>
+                  <td className="px-4 py-3">{formatGap(p.gap_from_initial_visit)}</td>
+                  <td className="px-4 py-3">{formatGap(p.gap_from_first_clinical_visit)}</td>
                   <td className="px-4 py-3">
-                    {formatGap(p.gap_from_initial_visit)}
-                  </td>
-                  <td className="px-4 py-3">
-                    {formatGap(p.gap_from_first_clinical_visit)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`text-xs px-2 py-1 rounded-full ${getStatusTag(p) === 'Improving'
-                        ? 'bg-green-100 text-green-700'
-                        : getStatusTag(p) === 'Worsening'
-                          ? 'bg-red-100 text-red-600'
-                          : 'bg-yellow-100 text-yellow-600'
-                        }`}
-                    >
+                    <span className={`text-xs px-2 py-1 rounded-full ${getStatusTag(p) === 'Improving' ? 'bg-green-100 text-green-700' : getStatusTag(p) === 'Worsening' ? 'bg-red-100 text-red-600' : 'bg-yellow-100 text-yellow-600'}`}>
                       {getStatusTag(p)}
                     </span>
                   </td>
@@ -334,14 +251,8 @@ const PatientsList = ({ hideHeader = false }) => {
                     <Link to={`/predict/${p.id}`} title="Predict" className="underline text-xs ml-1">
                       Risk
                     </Link>
-
-                    {/* Admin-only delete button */}
                     {user?.role === 'admin' && (
-                      <button
-                        onClick={() => handleDelete(p.id)}
-                        className="text-red-500 hover:text-red-700 text-xs ml-2"
-                        title="Delete Patient"
-                      >
+                      <button onClick={() => handleDelete(p.id)} className="text-red-500 hover:text-red-700 text-xs ml-2" title="Delete Patient">
                         🗑️
                       </button>
                     )}
@@ -353,36 +264,20 @@ const PatientsList = ({ hideHeader = false }) => {
         </table>
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center space-x-2 mt-4">
-          <button
-            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-            disabled={currentPage === 1}
-            className="px-3 py-1 border rounded disabled:opacity-50"
-          >
+          <button onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))} disabled={currentPage === 1} className="px-3 py-1 border rounded disabled:opacity-50">
             Prev
           </button>
           {[...Array(totalPages)].map((_, idx) => {
             const pageNum = idx + 1;
             return (
-              <button
-                key={pageNum}
-                onClick={() => setCurrentPage(pageNum)}
-                className={`px-3 py-1 border rounded ${pageNum === currentPage
-                  ? 'bg-indigo-500 text-white'
-                  : ''
-                  }`}
-              >
+              <button key={pageNum} onClick={() => setCurrentPage(pageNum)} className={`px-3 py-1 border rounded ${pageNum === currentPage ? 'bg-indigo-500 text-white' : ''}`}>
                 {pageNum}
               </button>
             );
           })}
-          <button
-            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-            disabled={currentPage === totalPages}
-            className="px-3 py-1 border rounded disabled:opacity-50"
-          >
+          <button onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages} className="px-3 py-1 border rounded disabled:opacity-50">
             Next
           </button>
         </div>
@@ -400,9 +295,7 @@ const SummaryCard = ({ label, value, type }) => {
   };
 
   return (
-    <div
-      className={`p-4 rounded-lg shadow-sm text-center ${colorMap[type]}`}
-    >
+    <div className={`p-4 rounded-lg shadow-sm text-center ${colorMap[type]}`}>
       <div className="text-sm font-medium">{label}</div>
       <div className="text-2xl font-bold mt-1">{value}</div>
     </div>

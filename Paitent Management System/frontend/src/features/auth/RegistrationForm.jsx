@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "../UserContext";
+import { useUser } from "@/UserContext";
 
 const RegistrationForm = () => {
   const [role, setRole] = useState("");
@@ -52,7 +52,7 @@ const RegistrationForm = () => {
         login({
           role: role,
           name: `${firstName} ${lastName}`,
-          id: data.user?.id || null
+          id: data.user?.id || null,
         });
         navigate('/');
       } else {
@@ -103,7 +103,6 @@ const RegistrationForm = () => {
   );
 };
 
-// Reusable Input
 const Input = ({ label, value, onChange, type = "text", required = false }) => (
   <div>
     <label className="block text-gray-600">{label}</label>
@@ -117,13 +116,11 @@ const Input = ({ label, value, onChange, type = "text", required = false }) => (
   </div>
 );
 
-// Reusable Role Button
 const RoleButton = ({ role, current, onClick, color }) => (
   <button
     type="button"
     onClick={() => onClick(role)}
-    className={`p-4 text-center border rounded-lg ${current === role ? `bg-${color}-200` : "hover:bg-gray-200"
-      }`}
+    className={`p-4 text-center border rounded-lg ${current === role ? `bg-${color}-200` : "hover:bg-gray-200"}`}
   >
     <div className={`text-${color}-600 capitalize`}>{role}</div>
     <div className="text-sm">
