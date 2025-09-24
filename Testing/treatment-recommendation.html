@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treatment Recommendation - RAG System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-logo">HealthRAG</h1>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="treatment-recommendation.html" class="nav-link active">Treatment</a>
+                </li>
+                <li class="nav-item">
+                    <a href="lifestyle-guidance.html" class="nav-link">Lifestyle</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="container">
+            <section class="hero-section">
+                <h1>Treatment Recommendation</h1>
+                <p class="hero-subtitle">Get personalized treatment suggestions based on your medical history and symptoms</p>
+            </section>
+
+            <section class="input-section">
+                <div class="input-card">
+                    <h2>Patient Information</h2>
+                    <form id="treatmentForm" class="form">
+                        <div class="form-group">
+                            <label for="patientAge">Age</label>
+                            <input type="number" id="patientAge" name="age" min="1" max="120" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="patientGender">Gender</label>
+                            <select id="patientGender" name="gender" required>
+                                <option value="">Select gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="medicalHistory">Medical History</label>
+                            <textarea id="medicalHistory" name="medicalHistory" 
+                                placeholder="Enter relevant medical history, previous conditions, medications..." 
+                                rows="4"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="currentSymptoms">Current Symptoms</label>
+                            <textarea id="currentSymptoms" name="symptoms" 
+                                placeholder="Describe current symptoms, severity, duration..." 
+                                rows="4" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="allergies">Known Allergies</label>
+                            <textarea id="allergies" name="allergies" 
+                                placeholder="List any known allergies to medications, foods, etc." 
+                                rows="2"></textarea>
+                        </div>
+
+                        <button type="submit" class="submit-btn">
+                            <span class="btn-text">Get Treatment Recommendations</span>
+                            <div class="loading-spinner" style="display: none;"></div>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <div class="results-card">
+                    <h2>Treatment Recommendations</h2>
+                    <div id="recommendationResults" class="results-content">
+                        <!-- Results will be populated here -->
+                    </div>
+                    <div class="confidence-score">
+                        <span>Confidence Score: </span>
+                        <span id="confidenceScore">--</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="disclaimer-section">
+                <div class="disclaimer">
+                    <h3>⚠️ Medical Disclaimer</h3>
+                    <p>This tool is for testing purposes only and should not be used for actual medical decisions. 
+                       Always consult with qualified healthcare professionals for medical advice.</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
