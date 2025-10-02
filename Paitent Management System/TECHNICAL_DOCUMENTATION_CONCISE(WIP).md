@@ -1,5 +1,9 @@
 # Project Technical Documentation (Concise)
 
+Doctor: art@gmail.com art123
+Patient: hello1@gmail.com hello123
+Admin: admin@gmail.com admin123
+
 ## 1) System Overview
 - **Purpose**
   - A patient management platform that combines operational data (patients, visits, labs) with AI-assisted insights to support safer, faster, and more consistent clinical decisions.
