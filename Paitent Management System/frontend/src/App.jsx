@@ -5,8 +5,8 @@ import { useEffect, useState } from 'react';
 import SignIn from './features/auth/SignIn.jsx';
 import RegistrationForm from './features/auth/RegistrationForm.jsx';
 import Layout from './Layout';
-import Dashboard from './pages/Dashboard';
-import Chatbot from './pages/Chatbot';
+import Dashboard from './features/dashboard/Dashboard.jsx';
+import Chatbot from './features/chatbot/Chatbot.jsx';
 import PatientsList from './features/patients/PatientsList.jsx';
 import PatientProfile from './features/patients/PatientProfile.jsx';
 import UpdatePatient from './features/patients/UpdatePatient.jsx';
@@ -21,6 +21,11 @@ import AdminDashboard from './features/admin/AdminDashboard.jsx';
 import AdminPatients from './features/admin/AdminPatients.jsx';
 import SystemAnalytics from './features/admin/SystemAnalytics.jsx';
 import ManageUsers from './features/admin/ManageUsers.jsx';
+import MessagesThread from './features/messages/MessagesThread.jsx';
+import MessagesPage from './features/messages/MessagesPage.jsx';
+import DoctorSettings from './features/settings/DoctorSettings.jsx';
+import PatientSettings from './features/settings/PatientSettings.jsx';
+import AdminSettings from './features/settings/AdminSettings.jsx';
 
 
 import './App.css';
@@ -35,7 +40,7 @@ function App() {
 
     useEffect(() => {
       if (user?.role === 'patient') {
-        const laravelUrl = import.meta.env.VITE_LARAVEL_URL || "http://localhost:8000";
+        const laravelUrl = import.meta.env.VITE_LARAVEL_URL || "http://127.0.0.1:8000";
         fetch(`${laravelUrl}/api/patients/by-user/${user.id}`)
           .then(res => res.json())
           .then(data => {
@@ -65,18 +70,24 @@ function App() {
         <Layout>
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/messages" element={<MessagesPage />} />
+            <Route path="/messages/:id" element={<MessagesPage />} />
             <Route path="/profile" element={<PatientRedirect />} />
             <Route
               path="/profile/edit"
               element={user?.role === 'patient' ? <UpdatePatient /> : <Navigate to="/" />}
             />
             <Route path="/patient/:id/*" element={<PatientProfile />} />
+            {/* Patient message thread */}
+            <Route path="/patient/:id/messages" element={<MessagesThread />} />
             <Route path="/chatbot" element={<Chatbot />} />
+            <Route path="/patient/settings" element={<PatientSettings />} />
 
 
             {user.role === 'doctor' && (
               <>
                 <Route path="/patients" element={<PatientsList />} />
+                <Route path="/patients/create" element={<CreatePatient />} />
                 <Route path="/predict" element={<RiskDashboard />} />
                 <Route path="/patient/update/:id" element={<UpdatePatient />} />  
                 <Route path="/therapy-effectiveness" element={<TherapyDashboard />} />
@@ -84,6 +95,9 @@ function App() {
                 <Route path="/therapy-effectiveness/:id" element={<TherapyEffectivenessForm />} />
                 <Route path="/treatment-recommendation" element={<TreatmentRecommendationDashboard />} />
                 <Route path="/treatment-recommendation/:id" element={<TreatmentRecommendationForm />} />
+                {/* Doctor message thread */}
+                <Route path="/patients/:id/messages" element={<MessagesThread />} />
+                <Route path="/doctor/settings" element={<DoctorSettings />} />
               </>
             )}
 
@@ -94,6 +108,7 @@ function App() {
                 <Route path="/admin/patients" element={<AdminPatients />} />
                 <Route path="/admin/patients/create" element={<CreatePatient />} />
                 <Route path="/admin/analytics" element={<SystemAnalytics />} />
+                <Route path="/admin/settings" element={<AdminSettings />} />
               </>
             )}
 

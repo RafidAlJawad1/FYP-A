@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Patient;
+use App\Models\User;
 use Carbon\Carbon;
 use App\Http\Requests\StorePatientRequest;
 use App\Http\Requests\UpdatePatientRequest;
@@ -41,6 +42,7 @@ class PatientController extends Controller
             'second_visit_date' => $validated['second_visit_date'] ?? null,
             'third_visit_date' => $validated['third_visit_date'] ?? null,
             'user_id' => $request->has('user_id') ? $request->input('user_id') : null, // 👈 Only assign if explicitly sent
+            'assigned_doctor_id' => $request->input('assigned_doctor_id'),
         ]);
 
         // Calculate derived fields
@@ -150,6 +152,9 @@ class PatientController extends Controller
             $search = $request->input('search');
             $query->where('name', 'like', "%{$search}%");
         }
+        if ($request->filled('doctor_id')) {
+            $query->where('assigned_doctor_id', (int) $request->input('doctor_id'));
+        }
 
         // Backwards compatible: if no perPage, return full list as before
         if (!$request->filled('perPage')) {
@@ -162,6 +167,18 @@ class PatientController extends Controller
         return PatientResource::collection($patients);
     }
 
+    // Admin: assign a patient to a doctor
+    public function assignDoctor(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'doctor_id' => 'nullable|integer|exists:users,id',
+        ]);
+        $patient = Patient::findOrFail($id);
+        $patient->assigned_doctor_id = $validated['doctor_id'] ?? null;
+        $patient->save();
+        return response()->json(['message' => 'Assignment updated', 'data' => $patient]);
+    }
+
     public function show($id)
     {
         $patient = Patient::find($id);
@@ -171,6 +188,37 @@ class PatientController extends Controller
         }
 
         return new PatientResource($patient);
+    }
+
+    // GET /api/patients/{id}/doctor
+    public function doctor($id)
+    {
+        $patient = Patient::find($id);
+        if (!$patient) {
+            return response()->json(['error' => 'Not found'], 404);
+        }
+        $doctor = null;
+        if ($patient->assigned_doctor_id) {
+            $doctor = User::find($patient->assigned_doctor_id);
+        }
+        if (!$doctor) {
+            return response()->json([
+                'doctor' => null,
+                'name' => null,
+                'email' => null,
+                'id' => null,
+            ], 200);
+        }
+        return response()->json([
+            'doctor' => [
+                'id' => $doctor->id,
+                'name' => $doctor->name,
+                'email' => $doctor->email,
+            ],
+            'id' => $doctor->id,
+            'name' => $doctor->name,
+            'email' => $doctor->email,
+        ], 200);
     }
 
     public function getByUserId($user_id)
@@ -197,6 +245,28 @@ class PatientController extends Controller
 
     return response()->json(['message' => 'Patient and linked user deleted']);
 }
+
+
+    // POST /api/patients/{id}/risk
+    // Body: { score: number, label: string, model_version?: string, predicted_at?: string(ISO) }
+    public function saveRisk(Request $request, $id)
+    {
+        $data = $request->validate([
+            'score' => 'required|numeric',
+            'label' => 'required|string|max:50',
+            'model_version' => 'nullable|string|max:50',
+            'predicted_at' => 'nullable|date',
+        ]);
+
+        $patient = Patient::findOrFail($id);
+        $patient->last_risk_score = round($data['score'], 2);
+        $patient->last_risk_label = $data['label'];
+        $patient->risk_model_version = $data['model_version'] ?? 'risk_v1';
+        $patient->last_predicted_at = isset($data['predicted_at']) ? Carbon::parse($data['predicted_at']) : now();
+        $patient->save();
+
+        return response()->json(['message' => 'Risk saved', 'data' => $patient]);
+    }
 
 
 }
