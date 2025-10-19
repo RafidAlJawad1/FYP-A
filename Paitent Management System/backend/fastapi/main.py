@@ -105,9 +105,8 @@ app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        os.getenv("FRONTEND_ORIGIN", "http://localhost:5174"),
+        os.getenv("FRONTEND_ORIGIN", "https://104384876laravel-cwh4axg4d4h5f0ha.southeastasia-01.azurewebsites.net"),
         os.getenv("LARAVEL_ORIGIN", "https://104384876laravel-cwh4axg4d4h5f0ha.southeastasia-01.azurewebsites.net"),
-        "*",
     ],
     allow_credentials=True,
     allow_methods=["*"],
